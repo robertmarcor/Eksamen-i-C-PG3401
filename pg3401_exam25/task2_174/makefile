@@ -1,13 +1,13 @@
 INCLDIR = ./include
 CC = gcc
-CFLAGS = -O2
+CFLAGS = -O2 -include stdio.h
 CFLAGS += -I$(INCLDIR)
 OBJDIR = obj
 
 _DEPS = source.h
 DEPS = $(patsubst %,$(INCLDIR)/%,$(_DEPS))
 
-_OBJS = source.o
+_OBJS = source.o task2_sum.o task2_hash.o task2_count.o
 OBJS = $(patsubst %,$(OBJDIR)/%,$(_OBJS))
 
 $(OBJDIR)/%.o: %.c $(DEPS)
@@ -18,4 +18,4 @@ task2_174: $(OBJS)
 
 .PHONY: clean
 clean:
-	rm -f $(OBJDIR)/*.o *~ core $(INCLDIR)/*~ 
+	rm -f $(OBJDIR)/*.o *~ core $(INCLDIR)/*~ task2_174 pgexam25_output.bin 

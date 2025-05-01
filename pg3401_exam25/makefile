@@ -1,6 +1,6 @@
 INCLDIR = ./include
 CC = gcc
-CFLAGS = -O2
+CFLAGS = -O2 -include stdio.h
 CFLAGS += -I$(INCLDIR)
 OBJDIR = obj
 
