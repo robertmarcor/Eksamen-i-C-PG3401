@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 typedef struct passenger
 {
     int seat_number;
@@ -26,7 +25,7 @@ struct flight
 };
 
 // User interface
-typedef display_menu;
+int get_menu_choice(void);
 
 // Flight Operations
 Flight *print_flight_by_number(Flight *head, int n);

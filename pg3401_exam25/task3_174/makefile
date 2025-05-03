@@ -4,10 +4,10 @@ CFLAGS = -O2 -include stdio.h
 CFLAGS += -I$(INCLDIR)
 OBJDIR = obj
 
-_DEPS = source.h
+_DEPS = source.h colors.h
 DEPS = $(patsubst %,$(INCLDIR)/%,$(_DEPS))
 
-_OBJS = source.o
+_OBJS = source.o flight_manager.o menu_display.o
 OBJS = $(patsubst %,$(OBJDIR)/%,$(_OBJS))
 
 $(OBJDIR)/%.o: %.c $(DEPS)
