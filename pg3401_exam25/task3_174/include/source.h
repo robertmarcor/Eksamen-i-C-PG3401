@@ -64,13 +64,12 @@ void display_passengers_on_flight(FlightNode *flight);
 // Menu interaction functions
 void add_new_flight(FlightDepartureList *list);
 void add_new_passenger(FlightDepartureList *list);
-void display_flight_details_menu(FlightDepartureList *list);
 void display_flight_by_pos(FlightDepartureList *list);
-void find_flight_position_by_id(FlightDepartureList *list);
-void display_passengers_menu(FlightDepartureList *list);
 void remove_flight_menu(FlightDepartureList *list);
 void remove_passenger_menu(FlightDepartureList *list);
 void add_sample_data(FlightDepartureList *list);
 void find_flight_by_destination(FlightDepartureList *list);
+void find_passenger_by_name(FlightDepartureList *list);
+void find_passengers_on_multiple_flights(FlightDepartureList *list);
 
 #endif // SOURCE_H

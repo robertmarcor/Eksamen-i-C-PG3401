@@ -68,7 +68,7 @@ FlightNode *create_flight(const char *flightId, const char *destination, int sea
     return newFlight;
 }
 
-// Initialize a new flight departure list
+// Initialization
 FlightDepartureList *init_flight_departure_list()
 {
     FlightDepartureList *list = (FlightDepartureList *)malloc(sizeof(FlightDepartureList));
@@ -248,53 +248,11 @@ void remove_flight(FlightDepartureList *list, const char *flightId)
         currentPassenger = nextPassenger;
     }
 
-    // Free flight node
     free(flight->flightId);
     free(flight->destination);
     free(flight);
 
     list->count--;
-}
-
-// Function to remove a passenger from a flight
-void remove_passenger(FlightNode *flight, int seatNumber)
-{
-    if (flight->passengers == NULL)
-    {
-        fprintf(stderr, "No passengers on flight %s\n", flight->flightId);
-        return;
-    }
-
-    // If passenger is at the head of the list
-    if (flight->passengers->seatNumber == seatNumber)
-    {
-        PassengerNode *temp = flight->passengers;
-        flight->passengers = flight->passengers->next;
-        free(temp->name);
-        free(temp);
-        return;
-    }
-
-    // Search for the passenger in the list
-    PassengerNode *current = flight->passengers;
-    while (current->next != NULL && current->next->seatNumber != seatNumber)
-    {
-        current = current->next;
-    }
-
-    // If passenger found, remove it
-    if (current->next != NULL)
-    {
-        PassengerNode *temp = current->next;
-        current->next = temp->next;
-        free(temp->name);
-        free(temp);
-    }
-    else
-    {
-        fprintf(stderr, "Passenger with seat number %d not found on flight %s\n",
-                seatNumber, flight->flightId);
-    }
 }
 
 // Function to free the passenger list

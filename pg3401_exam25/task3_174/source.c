@@ -58,12 +58,17 @@ int main()
     {
         printf("\n \n");
         printf(CYAN "========== Flight List Information  ==========\n" RESET);
-        printf("Total flights in the system: %d\n", departureList->count);
-        printf(CYAN "========== Flight Management System ==========\n" RESET);
+        printf("Total flights in the system: " BLUE "%d\n" RESET, departureList->count);
+        display_all_flights(departureList);
+        printf(CYAN "========== Flight Management Menu ==========\n" RESET);
         printf(YELLOW "1" RESET ". Add a new flight to list\n");
         printf(YELLOW "2" RESET ". Add a passenger to a flight-departure\n");
         printf(YELLOW "3" RESET ". Retrieve flight by position in list\n");
-        printf(YELLOW "5" RESET ". Find flight by destination\n");
+        printf(YELLOW "4" RESET ". Find flight by destination\n");
+        printf(YELLOW "5" RESET ". Delete flight and it's Passangers\n");
+        printf(YELLOW "6" RESET ". Find flight by passanger name\n");
+        printf(YELLOW "7" RESET ". Find passanger with multiple flights\n");
+        printf(YELLOW "8" RESET ". NOT YET IMPLEMENTED\n");
         printf(YELLOW "9" RESET ". Generate Dummy data\n");
         printf(YELLOW "0" RESET ". Exit Program\n");
         printf(CYAN "============================================\n" RESET);
@@ -92,25 +97,25 @@ int main()
 
         case 4:
             printf("\nYou selected Option 4\n");
-            printf("Performing actions for Option 4...\n");
+            find_flight_by_destination(departureList);
             pause();
             break;
 
         case 5:
             printf("\nYou selected Option 5\n");
-            find_flight_by_destination(departureList);
+            remove_flight_menu(departureList);
             pause();
             break;
 
         case 6:
             printf("\nYou selected Option 6\n");
-            printf("Performing actions for Option 6...\n");
+            find_passenger_by_name(departureList);
             pause();
             break;
 
         case 7:
             printf("\nYou selected Option 7\n");
-            printf("Performing actions for Option 7...\n");
+            find_passengers_on_multiple_flights(departureList);
             pause();
             break;
 

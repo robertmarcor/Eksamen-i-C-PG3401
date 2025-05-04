@@ -23,7 +23,7 @@ void display_all_flights(FlightDepartureList *list)
         return;
     }
 
-    printf("\n===== FLIGHT DEPARTURE LIST =====\n");
+    printf(MAGENTA "\n========== FLIGHT DEPARTURE LIST ==========\n" RESET);
     printf("Total flights: %d\n\n", list->count);
 
     FlightNode *current = list->head;
@@ -31,12 +31,11 @@ void display_all_flights(FlightDepartureList *list)
 
     while (current != NULL)
     {
-        printf("%d. Flight: %s to %s, Departure: %04d, Seats: %d\n",
+        printf("%d. Flight: %s to %s, Departure: %04d\n",
                flightNum++, current->flightId, current->destination,
-               current->departureTime, current->seats);
+               current->departureTime);
         current = current->next;
     }
-    printf("===============================\n\n");
 }
 
 // Function to display details of a specific flight
@@ -98,6 +97,163 @@ void display_passengers_on_flight(FlightNode *flight)
     printf("==================================\n\n");
 }
 
+// Search for a passenger by name across all flights
+void find_passenger_by_name(FlightDepartureList *list)
+{
+    char passengerName[100];
+    int found = 0;
+
+    printf("\n===== FIND PASSENGER BY NAME =====\n");
+    printf("Enter passenger name: ");
+    scanf("%s", passengerName);
+    clear_input_buffer();
+
+    // Convert input name to lowercase for case-insensitive comparison
+    char name_lower[100];
+    for (int i = 0; passengerName[i]; i++)
+    {
+        name_lower[i] = tolower(passengerName[i]);
+    }
+    name_lower[strlen(passengerName)] = '\0';
+
+    // Iterate through all flights
+    FlightNode *currentFlight = list->head;
+    int flightPos = 0;
+
+    printf("\nSearching for passenger: %s\n", passengerName);
+
+    while (currentFlight != NULL)
+    {
+        flightPos++;
+
+        // Iterate through passengers of current flight
+        PassengerNode *currentPassenger = currentFlight->passengers;
+        while (currentPassenger != NULL)
+        {
+            // Convert passenger name to lowercase for comparison
+            char passenger_name_lower[50];
+            for (int i = 0; currentPassenger->name[i]; i++)
+            {
+                passenger_name_lower[i] = tolower(currentPassenger->name[i]);
+            }
+            passenger_name_lower[strlen(currentPassenger->name)] = '\0';
+
+            // Compare names (case-insensitive)
+            if (strstr(passenger_name_lower, name_lower) != NULL)
+            {
+                if (!found)
+                {
+                    printf("\nPassenger '%s' found on the following flights:\n", passengerName);
+                }
+
+                printf("--------------------------------\n");
+                printf("Flight: %s (position %d in list)\n", currentFlight->flightId, flightPos);
+                printf("Destination: %s\n", currentFlight->destination);
+                printf("Departure Time: %04d\n", currentFlight->departureTime);
+                printf("Seat Number: %d\n", currentPassenger->seatNumber);
+                printf("Passenger Name: %s\n", currentPassenger->name);
+                printf("Passenger Age: %d\n", currentPassenger->age);
+
+                found = 1;
+            }
+
+            currentPassenger = currentPassenger->next;
+        }
+
+        currentFlight = currentFlight->next;
+    }
+
+    if (!found)
+    {
+        printf("No passenger with name '%s' found on any flight.\n", passengerName);
+    }
+}
+
+// Find passengers booked on multiple flights
+void find_passengers_on_multiple_flights(FlightDepartureList *list)
+{
+    if (list->head == NULL)
+    {
+        printf("No flights in the system.\n");
+        return;
+    }
+
+    printf("\n===== PASSENGERS BOOKED ON MULTIPLE FLIGHTS =====\n");
+    int foundAny = 0;
+
+    // For each flight
+    FlightNode *flight1 = list->head;
+    while (flight1 != NULL)
+    {
+        // Get each passenger on this flight
+        PassengerNode *passenger = flight1->passengers;
+        while (passenger != NULL)
+        {
+            int count = 0;
+
+            // Count occurrences on all flights
+            FlightNode *flight2 = list->head;
+            while (flight2 != NULL)
+            {
+                PassengerNode *check = flight2->passengers;
+                while (check != NULL)
+                {
+                    // Match if same name and age
+                    if (strcmp(passenger->name, check->name) == 0 &&
+                        passenger->age == check->age)
+                    {
+                        count++;
+                    }
+                    check = check->next;
+                }
+                flight2 = flight2->next;
+            }
+
+            // If found on multiple flights and not printed yet
+            if (count > 1)
+            {
+                // Check if we've already printed this passenger
+                // We'll only print the first occurrence to avoid duplicates
+                int alreadyPrinted = 0;
+                FlightNode *prevFlight = list->head;
+
+                while (prevFlight != flight1)
+                {
+                    PassengerNode *prevPassenger = prevFlight->passengers;
+                    while (prevPassenger != NULL)
+                    {
+                        if (strcmp(passenger->name, prevPassenger->name) == 0 &&
+                            passenger->age == prevPassenger->age)
+                        {
+                            alreadyPrinted = 1;
+                            break;
+                        }
+                        prevPassenger = prevPassenger->next;
+                    }
+                    if (alreadyPrinted)
+                        break;
+                    prevFlight = prevFlight->next;
+                }
+
+                if (!alreadyPrinted)
+                {
+                    printf("Passenger: %s (Age: %d) is booked on %d flights\n",
+                           passenger->name, passenger->age, count);
+                    foundAny = 1;
+                }
+            }
+
+            passenger = passenger->next;
+        }
+
+        flight1 = flight1->next;
+    }
+
+    if (!foundAny)
+    {
+        printf("No passengers are booked on multiple flights.\n");
+    }
+}
 // UI Interaction Functions
 
 void add_new_flight(FlightDepartureList *list)
@@ -231,38 +387,14 @@ void remove_flight_menu(FlightDepartureList *list)
 {
     char flightId[20];
 
-    printf("\n===== REMOVE FLIGHT =====\n");
-    printf("Enter flight ID to remove: ");
+    printf(RED "\n===== REMOVE FLIGHT =====\n" RESET);
+    printf("Enter flight ID to " RED "remove " RESET "eg,.BA-42\n");
+    printf("ID: ");
     scanf("%s", flightId);
     clear_input_buffer();
 
     remove_flight(list, flightId);
     printf("Flight %s removed successfully.\n", flightId);
-}
-
-void remove_passenger_menu(FlightDepartureList *list)
-{
-    char flightId[20];
-    int seatNumber;
-
-    printf("\n===== REMOVE PASSENGER =====\n");
-    printf("Enter flight ID: ");
-    scanf("%s", flightId);
-    clear_input_buffer();
-
-    FlightNode *flight = find_flight_by_id(list, flightId);
-    if (flight == NULL)
-    {
-        printf("Flight %s not found.\n", flightId);
-        return;
-    }
-
-    printf("Enter seat number to remove: ");
-    scanf("%d", &seatNumber);
-    clear_input_buffer();
-
-    remove_passenger(flight, seatNumber);
-    printf("Passenger with seat number %d removed from flight %s.\n", seatNumber, flightId);
 }
 
 void add_sample_data(FlightDepartureList *list)
@@ -273,20 +405,24 @@ void add_sample_data(FlightDepartureList *list)
     add_flight(list, "CH-99", "Hong Kong", 300, 2130);
 
     // Find the flights
-    FlightNode *bergenFlight = find_flight_by_id(list, "BA-42");
-    FlightNode *osloFlight = find_flight_by_id(list, "AA-12");
-    FlightNode *hongKongFlight = find_flight_by_id(list, "CH-99");
+    FlightNode *flightExample1 = find_flight_by_id(list, "BA-42");
+    FlightNode *flightExample2 = find_flight_by_id(list, "AA-12");
+    FlightNode *flightExample3 = find_flight_by_id(list, "CH-99");
 
-    add_passenger(bergenFlight, 12, "Ole Hansen", 35);
-    add_passenger(bergenFlight, 5, "Ingrid Larsen", 42);
-    add_passenger(bergenFlight, 23, "Magnus Olsen", 28);
+    // Flight 1
+    add_passenger(flightExample1, 12, "Ole", 35);
+    add_passenger(flightExample1, 5, "Ingrid", 42);
+    add_passenger(flightExample1, 23, "Magnus", 28);
 
-    add_passenger(osloFlight, 15, "Sigrid Johansen", 31);
-    add_passenger(osloFlight, 42, "Anders Pedersen", 48);
+    // Flight 2
+    add_passenger(flightExample2, 15, "Sigrid", 31);
+    add_passenger(flightExample2, 42, "Anders", 48);
+    add_passenger(flightExample2, 12, "Ole", 35); // on both flights
 
-    add_passenger(hongKongFlight, 7, "Wei Zhang", 27);
-    add_passenger(hongKongFlight, 19, "Li Chen", 39);
-    add_passenger(hongKongFlight, 3, "Mei Wong", 24);
+    // Flight 3
+    add_passenger(flightExample3, 7, "Wei", 27);
+    add_passenger(flightExample3, 19, "Li", 39);
+    add_passenger(flightExample3, 3, "Mei", 24);
 
     printf("Sample data generated.\n");
 }
