@@ -6,50 +6,6 @@
 
 Flight *head = NULL;
 
-int get_quick_choice(int current_option)
-{
-    char choice[3];
-
-    printf("\n");
-    switch (current_option)
-    {
-    case 1:
-        printf("Would you like to add another flight? (y/n, q to quit): ");
-        break;
-    case 3:
-        printf("Would you like to view another flight? (y/n, q to quit): ");
-        break;
-    case 5:
-        printf("Would you like to delete another flight? (y/n, q to quit): ");
-        break;
-    default:
-        printf("Continue with the same operation? (y/n, q to quit): ");
-        break;
-    }
-
-    if (fgets(choice, sizeof(choice), stdin) == NULL)
-    {
-        return 0; // Return to main menu on error
-    }
-
-    // Remove newline if present
-    choice[strcspn(choice, "\n")] = 0;
-
-    // Check user's choice
-    if (choice[0] == 'y' || choice[0] == 'Y')
-    {
-        return current_option; // Repeat the same operation
-    }
-    else if (choice[0] == 'q' || choice[0] == 'Q')
-    {
-        return -1; // Quit
-    }
-    else
-    {
-        return 0; // Default to main menu (for 'n' or any other input)
-    }
-}
-
 int main()
 {
     int menu_option = 0;

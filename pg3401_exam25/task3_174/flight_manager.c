@@ -31,7 +31,6 @@ Flight *add_flight(Flight *head, Flight *new_flight)
     printf("Destination: %s\n", new_flight->destination);
     printf("Total Seats: %d\n", new_flight->seats);
     printf("Next flight ID: %d\n", head->flight_id);
-    printf("Previous flight ID: %d\n", new_flight->prev->flight_id);
     return new_flight; // New flight is now the head
 }
 

@@ -32,6 +32,7 @@ struct flight
 // User interface
 void display_menu();
 int get_menu_choice(void);
+int get_quick_choice(int current_option);
 
 // Flight Operations
 Flight *print_flight_by_number(Flight *head, int n);
