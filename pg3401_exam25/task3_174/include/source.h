@@ -5,46 +5,52 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct passenger
+// Structure for passenger reservation (single-linked list)
+typedef struct PassengerNode
 {
-    char name[100];
-    int age;
-} Passenger;
+    int seatNumber;             // SEAT NUMBER
+    char *name;                 // NAME of the passenger
+    int age;                    // AGE of the passenger
+    struct PassengerNode *next; // Pointer to the next passenger
+} PassengerNode;
 
-typedef struct booking
+// Structure for flight information (double-linked list)
+typedef struct FlightNode
 {
-    Passenger *passenger;
-    int seat_number;
-} Booking;
+    char *flightId;    // FLIGHTID (e.g., BA-42)
+    char *destination; // DESTINATION
+    int seats;         // Total number of SEATS
+    int departureTime; // TIME for departure
 
-typedef struct flight Flight;
-struct flight
+    PassengerNode *passengers; // Head of the passenger list (sorted by seat number)
+
+    struct FlightNode *prev; // Pointer to the previous flight
+    struct FlightNode *next; // Pointer to the next flight
+} FlightNode;
+
+// Structure to manage the entire flight departure list
+typedef struct
 {
-    int flight_id;
-    char destination[100];
-    int seats;
-    int time_of_departure;
-    Booking bookings[100];
-    Flight *next;
-    Flight *prev;
-};
+    FlightNode *head; // Pointer to the first flight in the list
+    FlightNode *tail; // Pointer to the last flight in the list
+    int count;        // Number of flights in the list
+} FlightDepartureList;
 
 // User interface
 void display_menu();
 int get_menu_choice(void);
 int get_quick_choice(int current_option);
 
-// Flight Operations
-Flight *print_flight_by_number(Flight *head, int n);
-Flight *add_flight(Flight *head, Flight *new_flight);
-Flight *remove_flight(Flight *head, int flight_id);
-int find_flight_by_destination(Flight *head, const char *destination);
-void find_flights_by_same_passanger();
-int get_flight_list();
-
-// Passanger Operations
-void find_passanger_flights_by_name(Flight *head, const char *booking_name);
-int add_passenger_to_flight(Flight *flight, Booking *booking, int seat_number);
-int change_passenger_seat(Flight *flight, const char *booking_name, int new_seat_number);
+// Function prototypes
+FlightDepartureList *initFlightDepartureList();
+void addFlight(FlightDepartureList *list, const char *flightId, const char *destination, int seats, int departureTime);
+void addPassenger(FlightNode *flight, int seatNumber, const char *name, int age);
+FlightNode *findFlightById(FlightDepartureList *list, const char *flightId);
+void removeFlight(FlightDepartureList *list, const char *flightId);
+void removePassenger(FlightNode *flight, int seatNumber);
+void displayAllFlights(FlightDepartureList *list);
+void displayFlightDetails(FlightNode *flight);
+void displayPassengersOnFlight(FlightNode *flight);
+void freeFlightDepartureList(FlightDepartureList *list);
 
 #endif // SOURCE_H

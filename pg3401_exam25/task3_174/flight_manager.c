@@ -1,134 +1,395 @@
 #include "source.h"
-#include "colors.h"
 #include <stdio.h>
+#include <stdlib.h>
 
-int flight_list = 0;
-
-int get_flight_list()
+// Function to create a new passenger node
+PassengerNode *createPassenger(int seatNumber, const char *name, int age)
 {
-    return flight_list;
-}
-
-Flight *add_flight(Flight *head, Flight *new_flight)
-{
-    // Increment the list size
-    flight_list++;
-
-    // If the list is empty, new flight becomes the head
-    if (head == NULL)
+    PassengerNode *newPassenger = (PassengerNode *)malloc(sizeof(PassengerNode));
+    if (newPassenger == NULL)
     {
-        new_flight->next = NULL;
-        new_flight->prev = NULL;
-        return new_flight;
+        fprintf(stderr, "Memory allocation failed for passenger\n");
+        exit(EXIT_FAILURE);
     }
 
-    // Add to the beginning of the list (prepend)
-    new_flight->next = head;
-    new_flight->prev = NULL;
-    head->prev = new_flight;
-    printf("Flight with ID %d added successfully\n", new_flight->flight_id);
-    printf("Departure Time: %d\n", new_flight->time_of_departure);
-    printf("Destination: %s\n", new_flight->destination);
-    printf("Total Seats: %d\n", new_flight->seats);
-    printf("Next flight ID: %d\n", head->flight_id);
-    return new_flight; // New flight is now the head
+    newPassenger->seatNumber = seatNumber;
+
+    newPassenger->name = (char *)malloc(strlen(name) + 1);
+    if (newPassenger->name == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for passenger name\n");
+        free(newPassenger);
+        exit(EXIT_FAILURE);
+    }
+    strcpy(newPassenger->name, name);
+
+    newPassenger->age = age;
+    newPassenger->next = NULL;
+
+    return newPassenger;
 }
 
-Flight *remove_flight(Flight *head, int flight_id)
+// Function to create a new flight node
+FlightNode *createFlight(const char *flightId, const char *destination, int seats, int departureTime)
 {
-    Flight *current = head;
-    Flight *new_head = head;
+    FlightNode *newFlight = (FlightNode *)malloc(sizeof(FlightNode));
+    if (newFlight == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for flight\n");
+        exit(EXIT_FAILURE);
+    }
 
-    // Find the flight to delete
+    newFlight->flightId = (char *)malloc(strlen(flightId) + 1);
+    if (newFlight->flightId == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for flight ID\n");
+        free(newFlight);
+        exit(EXIT_FAILURE);
+    }
+    strcpy(newFlight->flightId, flightId);
+
+    newFlight->destination = (char *)malloc(strlen(destination) + 1);
+    if (newFlight->destination == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for destination\n");
+        free(newFlight->flightId);
+        free(newFlight);
+        exit(EXIT_FAILURE);
+    }
+    strcpy(newFlight->destination, destination);
+
+    newFlight->seats = seats;
+    newFlight->departureTime = departureTime;
+    newFlight->passengers = NULL;
+    newFlight->prev = NULL;
+    newFlight->next = NULL;
+
+    return newFlight;
+}
+
+// Initialize a new flight departure list
+FlightDepartureList *initFlightDepartureList()
+{
+    FlightDepartureList *list = (FlightDepartureList *)malloc(sizeof(FlightDepartureList));
+    if (list == NULL)
+    {
+        fprintf(stderr, "Memory allocation failed for flight departure list\n");
+        exit(EXIT_FAILURE);
+    }
+
+    list->head = NULL;
+    list->tail = NULL;
+    list->count = 0;
+
+    return list;
+}
+
+// Function to add a passenger to a flight (maintaining sorted order by seat number)
+void addPassenger(FlightNode *flight, int seatNumber, const char *name, int age)
+{
+    // Check if the seat number is valid
+    if (seatNumber <= 0 || seatNumber > flight->seats)
+    {
+        fprintf(stderr, "Invalid seat number %d for flight %s\n", seatNumber, flight->flightId);
+        return;
+    }
+
+    // Check if seat is already taken
+    PassengerNode *current = flight->passengers;
     while (current != NULL)
     {
-        if (current->flight_id == flight_id)
+        if (current->seatNumber == seatNumber)
         {
-            // Update links
-            if (current->prev != NULL)
-            {
-                current->prev->next = current->next;
-            }
-            else
-            {
-                // Deleting the head
-                new_head = current->next;
-            }
-
-            if (current->next != NULL)
-            {
-                current->next->prev = current->prev;
-            }
-
-            // Free memory
-            free(current);
-            flight_list--;
-            return new_head;
+            fprintf(stderr, "Seat %d is already taken on flight %s\n", seatNumber, flight->flightId);
+            return;
         }
         current = current->next;
     }
 
-    return head; // Flight not found, return original head
+    PassengerNode *newPassenger = createPassenger(seatNumber, name, age);
+
+    // If no passengers or new passenger has lower seat number than head
+    if (flight->passengers == NULL || seatNumber < flight->passengers->seatNumber)
+    {
+        newPassenger->next = flight->passengers;
+        flight->passengers = newPassenger;
+        return;
+    }
+
+    // Find the correct position to insert (keeping the list sorted by seat number)
+    current = flight->passengers;
+    while (current->next != NULL && current->next->seatNumber < seatNumber)
+    {
+        current = current->next;
+    }
+
+    // Insert after current
+    newPassenger->next = current->next;
+    current->next = newPassenger;
 }
 
-Flight *print_flight_by_number(Flight *head, int n)
+// Function to add a flight to the departure list
+void addFlight(FlightDepartureList *list, const char *flightId, const char *destination,
+               int seats, int departureTime)
 {
-    Flight *current = head;
-    int count = 1; // Start counting from 1
-
-    // Check for invalid index or empty list
-    if (n <= 0 || head == NULL)
+    // Check if flight ID already exists
+    FlightNode *current = list->head;
+    while (current != NULL)
     {
-        printf("Error: Invalid flight number or empty list.\n");
-        return NULL;
+        if (strcmp(current->flightId, flightId) == 0)
+        {
+            fprintf(stderr, "Flight with ID %s already exists\n", flightId);
+            return;
+        }
+        current = current->next;
     }
 
-    // Traverse the list to the Nth node
-    while (current != NULL && count < n)
+    FlightNode *newFlight = createFlight(flightId, destination, seats, departureTime);
+
+    // If list is empty
+    if (list->head == NULL)
+    {
+        list->head = newFlight;
+        list->tail = newFlight;
+    }
+    else
+    {
+        // Add to end of list
+        list->tail->next = newFlight;
+        newFlight->prev = list->tail;
+        list->tail = newFlight;
+    }
+
+    list->count++;
+}
+
+// Function to find a flight by ID
+FlightNode *findFlightById(FlightDepartureList *list, const char *flightId)
+{
+    FlightNode *current = list->head;
+
+    while (current != NULL)
+    {
+        if (strcmp(current->flightId, flightId) == 0)
+        {
+            return current;
+        }
+        current = current->next;
+    }
+
+    return NULL; // Flight not found
+}
+
+// Function to remove a flight from the list
+void removeFlight(FlightDepartureList *list, const char *flightId)
+{
+    FlightNode *flight = findFlightById(list, flightId);
+
+    if (flight == NULL)
+    {
+        fprintf(stderr, "Flight with ID %s not found\n", flightId);
+        return;
+    }
+
+    // Update links for adjacent nodes
+    if (flight->prev != NULL)
+    {
+        flight->prev->next = flight->next;
+    }
+    else
+    {
+        list->head = flight->next; // Removing the head
+    }
+
+    if (flight->next != NULL)
+    {
+        flight->next->prev = flight->prev;
+    }
+    else
+    {
+        list->tail = flight->prev; // Removing the tail
+    }
+
+    // Free passenger list
+    PassengerNode *currentPassenger = flight->passengers;
+    PassengerNode *nextPassenger;
+
+    while (currentPassenger != NULL)
+    {
+        nextPassenger = currentPassenger->next;
+        free(currentPassenger->name);
+        free(currentPassenger);
+        currentPassenger = nextPassenger;
+    }
+
+    // Free flight node
+    free(flight->flightId);
+    free(flight->destination);
+    free(flight);
+
+    list->count--;
+}
+
+// Function to remove a passenger from a flight
+void removePassenger(FlightNode *flight, int seatNumber)
+{
+    if (flight->passengers == NULL)
+    {
+        fprintf(stderr, "No passengers on flight %s\n", flight->flightId);
+        return;
+    }
+
+    // If passenger is at the head of the list
+    if (flight->passengers->seatNumber == seatNumber)
+    {
+        PassengerNode *temp = flight->passengers;
+        flight->passengers = flight->passengers->next;
+        free(temp->name);
+        free(temp);
+        return;
+    }
+
+    // Search for the passenger in the list
+    PassengerNode *current = flight->passengers;
+    while (current->next != NULL && current->next->seatNumber != seatNumber)
     {
         current = current->next;
-        count++;
     }
 
-    // Check if we found the Nth node
-    if (current == NULL)
+    // If passenger found, remove it
+    if (current->next != NULL)
     {
-        printf("Error: Flight number %d not found (list too short).\n", n);
-        return NULL;
+        PassengerNode *temp = current->next;
+        current->next = temp->next;
+        free(temp->name);
+        free(temp);
     }
-
-    // --- Print Flight Details ---
-    printf("--- Flight %d ---\n", n);
-    printf("Flight ID: %d\n", current->flight_id);
-    printf("Destination: %s\n", current->destination);
-    printf("Total Seats: %d\n", current->seats);
-    printf("Departure Time: %d\n", current->time_of_departure); // Assuming int format
-
-    // --- Print Passenger/Booking Details ---
-    printf("Bookings:\n");
-    int bookings_found = 0;
-    // Assuming bookings[0] is invalid if seat_number is 0 or name is empty
-    // A better approach would be to track the actual number of bookings.
-    for (int i = 0; i < 100; ++i)
+    else
     {
-        // Check if this booking slot is actually used
-        // THIS IS A GUESS - you need a reliable way to know if a slot is used!
-        // Maybe check if seat_number is non-zero?
-        if (current->bookings[i].seat_number != 0)
-        {
-            printf("  - Seat: %d, Name: %s, Age: %d\n",
-                   current->bookings[i].seat_number,
-                   current->bookings[i].passenger->name,
-                   current->bookings[i].passenger->age);
-            bookings_found++;
-        }
+        fprintf(stderr, "Passenger with seat number %d not found on flight %s\n",
+                seatNumber, flight->flightId);
     }
+}
 
-    if (bookings_found == 0)
+// Function to display all flights
+void displayAllFlights(FlightDepartureList *list)
+{
+    if (list->head == NULL)
     {
-        printf("  No bookings found for this flight.\n");
+        printf("No flights in the system.\n");
+        return;
     }
-    printf("------------------\n");
 
-    return current; // Return pointer to the found flight
+    printf("\n===== FLIGHT DEPARTURE LIST =====\n");
+    printf("Total flights: %d\n\n", list->count);
+
+    FlightNode *current = list->head;
+    int flightNum = 1;
+
+    while (current != NULL)
+    {
+        printf("%d. Flight: %s to %s, Departure: %04d, Seats: %d\n",
+               flightNum++, current->flightId, current->destination,
+               current->departureTime, current->seats);
+        current = current->next;
+    }
+    printf("===============================\n\n");
+}
+
+// Function to display details of a specific flight
+void displayFlightDetails(FlightNode *flight)
+{
+    if (flight == NULL)
+    {
+        printf("Flight not found.\n");
+        return;
+    }
+
+    printf("\n===== FLIGHT DETAILS =====\n");
+    printf("Flight ID: %s\n", flight->flightId);
+    printf("Destination: %s\n", flight->destination);
+    printf("Departure Time: %04d\n", flight->departureTime);
+    printf("Total Seats: %d\n", flight->seats);
+
+    // Count passengers
+    int passengerCount = 0;
+    PassengerNode *current = flight->passengers;
+    while (current != NULL)
+    {
+        passengerCount++;
+        current = current->next;
+    }
+
+    printf("Passengers: %d\n", passengerCount);
+    printf("=========================\n\n");
+}
+
+// Function to display all passengers on a flight
+void displayPassengersOnFlight(FlightNode *flight)
+{
+    if (flight == NULL)
+    {
+        printf("Flight not found.\n");
+        return;
+    }
+
+    if (flight->passengers == NULL)
+    {
+        printf("No passengers on flight %s to %s.\n", flight->flightId, flight->destination);
+        return;
+    }
+
+    printf("\n===== PASSENGERS ON FLIGHT %s =====\n", flight->flightId);
+    printf("Destination: %s, Departure: %04d\n\n", flight->destination, flight->departureTime);
+
+    PassengerNode *current = flight->passengers;
+    int count = 1;
+
+    while (current != NULL)
+    {
+        printf("%d. Seat %d: %s, Age: %d\n",
+               count++, current->seatNumber, current->name, current->age);
+        current = current->next;
+    }
+
+    printf("==================================\n\n");
+}
+
+// Function to free the passenger list
+void freePassengers(PassengerNode *head)
+{
+    PassengerNode *current = head;
+    PassengerNode *next;
+
+    while (current != NULL)
+    {
+        next = current->next;
+        free(current->name);
+        free(current);
+        current = next;
+    }
+}
+
+// Function to free the entire flight departure list
+void freeFlightDepartureList(FlightDepartureList *list)
+{
+    FlightNode *current = list->head;
+    FlightNode *next;
+
+    while (current != NULL)
+    {
+        next = current->next;
+
+        // Free the passenger list first
+        freePassengers(current->passengers);
+
+        // Free the flight node
+        free(current->flightId);
+        free(current->destination);
+        free(current);
+
+        current = next;
+    }
+
+    free(list);
 }

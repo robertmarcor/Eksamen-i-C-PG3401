@@ -7,7 +7,7 @@ OBJDIR = obj
 _DEPS = source.h colors.h
 DEPS = $(patsubst %,$(INCLDIR)/%,$(_DEPS))
 
-_OBJS = source.o flight_manager.o menu.o
+_OBJS = source.o flight_manager.o flight_functions.o menu.o
 OBJS = $(patsubst %,$(OBJDIR)/%,$(_OBJS))
 
 $(OBJDIR)/%.o: %.c $(DEPS)
