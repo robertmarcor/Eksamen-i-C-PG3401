@@ -129,8 +129,9 @@ void add_passenger(FlightNode *flight, int seatNumber, const char *name, int age
 }
 
 // Function to add a flight to the departure list
-void add_flight(FlightDepartureList *list, const char *flightId, const char *destination,
-                int seats, int departureTime)
+// Return codes: 0 = success, 1 = already exists, 2 = other error
+int add_flight(FlightDepartureList *list, const char *flightId, const char *destination,
+               int seats, int departureTime)
 {
     // Check if flight ID already exists
     FlightNode *current = list->head;
@@ -139,14 +140,18 @@ void add_flight(FlightDepartureList *list, const char *flightId, const char *des
         if (strcmp(current->flightId, flightId) == 0)
         {
             fprintf(stderr, "Flight with ID %s already exists\n", flightId);
-            return;
+            return 1; // Return code for "already exists"
         }
         current = current->next;
     }
 
     FlightNode *newFlight = create_flight(flightId, destination, seats, departureTime);
+    if (newFlight == NULL)
+    {
+        return 2; // Return code for other errors
+    }
 
-    // If list is empty
+    // Add to list...
     if (list->head == NULL)
     {
         list->head = newFlight;
@@ -154,13 +159,13 @@ void add_flight(FlightDepartureList *list, const char *flightId, const char *des
     }
     else
     {
-        // Add to end of list
         list->tail->next = newFlight;
         newFlight->prev = list->tail;
         list->tail = newFlight;
     }
-
     list->count++;
+
+    return 0; // Success
 }
 
 // Function to find a flight by ID
@@ -178,6 +183,25 @@ FlightNode *find_flight_by_id(FlightDepartureList *list, const char *flightId)
     }
 
     return NULL; // Flight not found
+}
+
+FlightNode *find_flight_by_position(FlightDepartureList *list, int position)
+{
+    if (position <= 0 || position > list->count)
+    {
+        return NULL; // Invalid position
+    }
+
+    FlightNode *current = list->head;
+    int current_pos = 1;
+
+    while (current != NULL && current_pos < position)
+    {
+        current = current->next;
+        current_pos++;
+    }
+
+    return current;
 }
 
 // Function to remove a flight from the list

@@ -6,7 +6,7 @@
 
 void add_new_flight(FlightDepartureList *list)
 {
-    char flightId[20];
+    char flightId[6];
     char destination[50];
     int seats, departureTime;
 
@@ -23,8 +23,20 @@ void add_new_flight(FlightDepartureList *list)
     printf("Enter departure time (24-hour format, e.g., 1430 for 2:30 PM): ");
     scanf("%d", &departureTime);
 
-    add_flight(list, flightId, destination, seats, departureTime);
-    printf("Flight %s added successfully.\n", flightId);
+    int result = add_flight(list, flightId, destination, seats, departureTime);
+
+    if (result == 0)
+    {
+        printf("Flight %s added successfully.\n", flightId);
+    }
+    else if (result == 1)
+    {
+        printf("Failed to add flight: Flight ID %s already exists.\n", flightId);
+    }
+    else
+    {
+        printf("Failed to add flight: Unknown error occurred.\n");
+    }
 }
 
 void add_new_passenger(FlightDepartureList *list)
@@ -65,6 +77,27 @@ void display_flight_details_menu(FlightDepartureList *list)
     scanf("%s", flightId);
 
     FlightNode *flight = find_flight_by_id(list, flightId);
+    display_flight_details(flight);
+}
+
+void display_flight_by_pos(FlightDepartureList *list)
+{
+    int n;
+
+    printf("\nEnter a number: ");
+    if (scanf("%d", &n) != 1)
+    {
+        printf("Invalid input. Please enter a number.\n");
+        return;
+    }
+
+    FlightNode *flight = find_flight_by_position(list, n);
+    if (flight == NULL)
+    {
+        printf("No flight found at position %d.\n", n);
+        return;
+    }
+
     display_flight_details(flight);
 }
 
@@ -126,19 +159,16 @@ void add_sample_data(FlightDepartureList *list)
     FlightNode *osloFlight = find_flight_by_id(list, "AA-12");
     FlightNode *hongKongFlight = find_flight_by_id(list, "CH-99");
 
-    // Add passengers to Bergen flight (Norwegian names)
-    add_passenger(bergenFlight, 12, "Ole_Hansen", 35);
-    add_passenger(bergenFlight, 5, "Ingrid_Larsen", 42);
-    add_passenger(bergenFlight, 23, "Magnus_Olsen", 28);
+    add_passenger(bergenFlight, 12, "Ole Hansen", 35);
+    add_passenger(bergenFlight, 5, "Ingrid Larsen", 42);
+    add_passenger(bergenFlight, 23, "Magnus Olsen", 28);
 
-    // Add passengers to Oslo flight (Norwegian names)
-    add_passenger(osloFlight, 15, "Sigrid_Johansen", 31);
-    add_passenger(osloFlight, 42, "Anders_Pedersen", 48);
+    add_passenger(osloFlight, 15, "Sigrid Johansen", 31);
+    add_passenger(osloFlight, 42, "Anders Pedersen", 48);
 
-    // Add passengers to Hong Kong flight (Chinese names)
-    add_passenger(hongKongFlight, 7, "Wei_Zhang", 27);
-    add_passenger(hongKongFlight, 19, "Li_Chen", 39);
-    add_passenger(hongKongFlight, 3, "Mei_Wong", 24);
+    add_passenger(hongKongFlight, 7, "Wei Zhang", 27);
+    add_passenger(hongKongFlight, 19, "Li Chen", 39);
+    add_passenger(hongKongFlight, 3, "Mei Wong", 24);
 
-    printf("Sample data added successfully.\n");
+    printf("Sample data generated.\n");
 }
