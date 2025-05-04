@@ -53,4 +53,13 @@ void displayFlightDetails(FlightNode *flight);
 void displayPassengersOnFlight(FlightNode *flight);
 void freeFlightDepartureList(FlightDepartureList *list);
 
+// Add missing function prototypes from flight_functions.c
+void addNewFlight(FlightDepartureList *list);
+void addNewPassenger(FlightDepartureList *list);
+void displayFlightDetailsMenu(FlightDepartureList *list);
+void displayPassengersMenu(FlightDepartureList *list);
+void removeFlightMenu(FlightDepartureList *list);
+void removePassengerMenu(FlightDepartureList *list);
+void addSampleData(FlightDepartureList *list);
+
 #endif // SOURCE_H

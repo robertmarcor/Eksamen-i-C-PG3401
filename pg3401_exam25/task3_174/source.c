@@ -13,7 +13,7 @@ void quick_menu(int selection)
     if (selection == -1)
     {
         printf("Exiting.\n");
-        return 0;
+        exit(0);
     }
 }
 

@@ -67,11 +67,26 @@ int get_quick_choice(int current_option)
     case 1:
         printf("Would you like to add another flight? (y/n, q to quit): \n");
         break;
+    case 2:
+        printf("Would you like to add another passenger? (y/n, q to quit): \n");
+        break;
     case 3:
-        printf("Would you like to view another flight? (y/n, q to quit): \n");
+        printf("Would you like to display flights again? (y/n, q to quit): \n");
+        break;
+    case 4:
+        printf("Would you like to view another flight's details? (y/n, q to quit): \n");
         break;
     case 5:
-        printf("Would you like to delete another flight? (y/n, q to quit): \n");
+        printf("Would you like to find another flight by destination? (y/n, q to quit): \n");
+        break;
+    case 6:
+        printf("Would you like to view passengers for another flight? (y/n, q to quit): \n");
+        break;
+    case 7:
+        printf("Would you like to remove another flight? (y/n, q to quit): \n");
+        break;
+    case 8:
+        printf("Would you like to remove another passenger? (y/n, q to quit): \n");
         break;
     default:
         printf("Continue with the same operation? (y/n, q to quit): \n");
