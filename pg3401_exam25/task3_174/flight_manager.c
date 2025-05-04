@@ -3,7 +3,29 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Function to create a new passenger node
+/*
+ * FLIGHT MANAGER - Core Data Operations
+ *
+ * This file contains the core data management functions for the flight system.
+ * It handles all memory allocation and data structure management
+ * The user interface functions are in flight_functions.c.
+ *
+ * DATA STRUCTURES:
+ * - FlightDepartureList: Doubly-linked list of flights for bidirectional traversal
+ * - FlightNode: Individual flight with links to prev/next flights and its passengers
+ * - PassengerNode: Singly-linked list of passengers for each flight, sorted by seat number
+ * - All memory freed should be added to free_flight_departure_list
+ */
+
+/**
+ * Creates a new passenger node with the given details
+ * Allocates memory for the node and the passenger name string
+ *
+ * @param seatNumber - Seat number for the passenger
+ * @param name - Passenger name (will be copied)
+ * @param age - Passenger age
+ * @return Pointer to newly created passenger node
+ */
 PassengerNode *create_passenger(int seatNumber, const char *name, int age)
 {
     PassengerNode *newPassenger = (PassengerNode *)malloc(sizeof(PassengerNode));
@@ -30,7 +52,16 @@ PassengerNode *create_passenger(int seatNumber, const char *name, int age)
     return newPassenger;
 }
 
-// Function to create a new flight node
+/**
+ * Creates a new flight node with the given details
+ * Allocates memory for the node and string fields (flightId, destination)
+ *
+ * @param flightId - Unique identifier for the flight
+ * @param destination - Flight destination name
+ * @param seats - Total number of seats on the flight
+ * @param departureTime - Departure time (e.g., 1430 can be converted to 2:30 PM at some point)
+ * @return Pointer to newly created flight node
+ */
 FlightNode *create_flight(const char *flightId, const char *destination, int seats, int departureTime)
 {
     FlightNode *newFlight = (FlightNode *)malloc(sizeof(FlightNode));
@@ -68,7 +99,10 @@ FlightNode *create_flight(const char *flightId, const char *destination, int sea
     return newFlight;
 }
 
-// Initialization
+/**
+ * Initializes a new flight departure list
+ * @return Pointer to newly created flight departure list
+ */
 FlightDepartureList *init_flight_departure_list()
 {
     FlightDepartureList *list = (FlightDepartureList *)malloc(sizeof(FlightDepartureList));
@@ -85,17 +119,24 @@ FlightDepartureList *init_flight_departure_list()
     return list;
 }
 
-// Function to add a passenger to a flight (maintaining sorted order by seat number)
+/**
+ * Adds a passenger to a flight, maintaining seat number order
+ * Validates seat number and checks if seat is already taken
+ *
+ * @param flight - The flight to add passenger to
+ * @param seatNumber - Seat number for the passenger
+ * @param name - Passenger name
+ * @param age - Passenger age
+ */
 void add_passenger(FlightNode *flight, int seatNumber, const char *name, int age)
 {
-    // Check if the seat number is valid
     if (seatNumber <= 0 || seatNumber > flight->seats)
     {
         fprintf(stderr, "Invalid seat number %d for flight %s\n", seatNumber, flight->flightId);
         return;
     }
 
-    // Check if seat is already taken
+    // Check if seat is already taken to avoid duplicates
     PassengerNode *current = flight->passengers;
     while (current != NULL)
     {
@@ -109,7 +150,7 @@ void add_passenger(FlightNode *flight, int seatNumber, const char *name, int age
 
     PassengerNode *newPassenger = create_passenger(seatNumber, name, age);
 
-    // If no passengers or new passenger has lower seat number than head
+    // If no passengers or new passenger has lower seat number than head for sorting by seat number
     if (flight->passengers == NULL || seatNumber < flight->passengers->seatNumber)
     {
         newPassenger->next = flight->passengers;
@@ -124,24 +165,31 @@ void add_passenger(FlightNode *flight, int seatNumber, const char *name, int age
         current = current->next;
     }
 
-    // Insert after current
     newPassenger->next = current->next;
     current->next = newPassenger;
 }
 
-// Function to add a flight to the departure list
-// Return codes: 0 = success, 1 = already exists, 2 = other error
+/**
+ * Adds a flight to the departure list at the end
+ * Validates flight ID to ensure it's unique
+ *
+ * @param list - The flight departure list to add to
+ * @param flightId - Unique identifier for the flight
+ * @param destination - Flight destination
+ * @param seats - Number of seats on the flight
+ * @param departureTime - Departure time
+ * @return 0 for success, 1 if flight ID already exists, 2 for other errors
+ */
 int add_flight(FlightDepartureList *list, const char *flightId, const char *destination,
                int seats, int departureTime)
 {
-    // Check if flight ID already exists
     FlightNode *current = list->head;
     while (current != NULL)
     {
         if (strcmp(current->flightId, flightId) == 0)
         {
             fprintf(stderr, "Flight with ID %s already exists\n", flightId);
-            return 1; // Return code for "already exists"
+            return 1;
         }
         current = current->next;
     }
@@ -149,10 +197,10 @@ int add_flight(FlightDepartureList *list, const char *flightId, const char *dest
     FlightNode *newFlight = create_flight(flightId, destination, seats, departureTime);
     if (newFlight == NULL)
     {
-        return 2; // Return code for other errors
+        return 2;
     }
 
-    // Add to list...
+    // Populate the list
     if (list->head == NULL)
     {
         list->head = newFlight;
@@ -166,10 +214,16 @@ int add_flight(FlightDepartureList *list, const char *flightId, const char *dest
     }
     list->count++;
 
-    return 0; // Success
+    return 0;
 }
 
-// Function to find a flight by ID
+/**
+ * Finds a flight by its ID in the departure list
+ *
+ * @param list - The flight departure list to search in
+ * @param flightId - The flight ID to search for
+ * @return Pointer to the flight node if found, NULL otherwise
+ */
 FlightNode *find_flight_by_id(FlightDepartureList *list, const char *flightId)
 {
     FlightNode *current = list->head;
@@ -183,15 +237,21 @@ FlightNode *find_flight_by_id(FlightDepartureList *list, const char *flightId)
         current = current->next;
     }
 
-    return NULL; // Flight not found
+    return NULL;
 }
 
-// Function to find a flight by position in the list
+/**
+ * Finds a flight by its position in the list (1-based indexing)
+ *
+ * @param list - The flight departure list to search in
+ * @param position - The position in the list (1 = first flight)
+ * @return Pointer to the flight node if position is valid, NULL otherwise
+ */
 FlightNode *find_flight_by_position(FlightDepartureList *list, int position)
 {
     if (position <= 0 || position > list->count)
     {
-        return NULL; // Invalid position
+        return NULL;
     }
 
     FlightNode *current = list->head;
@@ -206,7 +266,13 @@ FlightNode *find_flight_by_position(FlightDepartureList *list, int position)
     return current;
 }
 
-// Function to remove a flight from the list
+/**
+ * Removes a flight from the departure list
+ * Handles list links, frees passenger list and flight node memory
+ *
+ * @param list - The flight departure list to remove from
+ * @param flightId - ID of the flight to remove
+ */
 void remove_flight(FlightDepartureList *list, const char *flightId)
 {
     FlightNode *flight = find_flight_by_id(list, flightId);
@@ -236,7 +302,7 @@ void remove_flight(FlightDepartureList *list, const char *flightId)
         list->tail = flight->prev; // Removing the tail
     }
 
-    // Free passenger list
+    // Freeing the passengers booked on the flight
     PassengerNode *currentPassenger = flight->passengers;
     PassengerNode *nextPassenger;
 
@@ -255,7 +321,16 @@ void remove_flight(FlightDepartureList *list, const char *flightId)
     list->count--;
 }
 
-// Function to change a passenger's seat number
+/**
+ * Changes a passenger's seat number on a flight
+ * Maintains the sorted order of the passenger list by seat number
+ *
+ * @param flight - The flight containing the passenger
+ * @param oldSeatNumber - Current seat number of the passenger
+ * @param newSeatNumber - New seat number to assign
+ * @return 0 for success, or error code: 1=flight null, 2=invalid seat,
+ *         3=seat taken, 4=passenger not found
+ */
 int change_passenger_seat(FlightNode *flight, int oldSeatNumber, int newSeatNumber)
 {
     // Check if the flight exists
@@ -307,12 +382,10 @@ int change_passenger_seat(FlightNode *flight, int oldSeatNumber, int newSeatNumb
     // Remove the passenger from the linked list
     if (target == flight->passengers)
     {
-        // Target is the head of the list
         flight->passengers = target->next;
     }
     else
     {
-        // Find the node before target
         current = flight->passengers;
         while (current != NULL && current->next != target)
         {
@@ -325,7 +398,6 @@ int change_passenger_seat(FlightNode *flight, int oldSeatNumber, int newSeatNumb
         }
     }
 
-    // Update seat number
     target->seatNumber = newSeatNumber;
     target->next = NULL;
 
@@ -346,10 +418,15 @@ int change_passenger_seat(FlightNode *flight, int oldSeatNumber, int newSeatNumb
     target->next = current->next;
     current->next = target;
 
-    return 0; // Success
+    return 0;
 }
 
-// Function to free the passenger list
+/**
+ * Frees all memory for a passenger list
+ * Helper function used by free_flight_departure_list
+ *
+ * @param head - Head of the passenger list to free
+ */
 void free_passengers(PassengerNode *head)
 {
     PassengerNode *current = head;
@@ -364,7 +441,12 @@ void free_passengers(PassengerNode *head)
     }
 }
 
-// Function to free the entire flight departure list
+/**
+ * Frees all memory associated with the flight departure list
+ * Includes all flights, passengers, and dynamically allocated strings
+ *
+ * @param list - The flight departure list to free
+ */
 void free_flight_departure_list(FlightDepartureList *list)
 {
     FlightNode *current = list->head;

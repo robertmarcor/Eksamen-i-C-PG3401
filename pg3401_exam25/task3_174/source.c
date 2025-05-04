@@ -42,7 +42,7 @@ int get_user_selection()
         }
 
         menu_option = atoi(inp);
-        validInput = 1; // Input is valid, exit the loop
+        validInput = 1;
 
     } while (validInput == 0);
     printf(RESET);
