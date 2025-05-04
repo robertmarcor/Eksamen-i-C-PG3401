@@ -3,79 +3,137 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-int menu_option = 99;
+int pause()
+{
+    sleep(1);
+}
+
+int get_user_selection()
+{
+    char inp[3];
+    int menu_option = 0;
+    int validInput = 0;
+
+    do
+    {
+        printf("Enter Selection: " YELLOW);
+
+        // early exit
+        if (fgets(inp, sizeof(inp), stdin) == NULL)
+        {
+            printf(RED "Input error. Exiting.\n" RESET);
+            return -1;
+        }
+
+        inp[strcspn(inp, "\n")] = 0;
+
+        if (strlen(inp) == 0)
+        {
+            printf(RED "\nNo input detected. Please enter a number.\n" RESET);
+            continue;
+        }
+
+        if (strspn(inp, "0123456789") != strlen(inp))
+        {
+            printf(RED "\nInvalid input. Please enter a number.\n" RESET);
+            continue;
+        }
+
+        menu_option = atoi(inp);
+        validInput = 1; // Input is valid, exit the loop
+
+    } while (validInput == 0);
+    printf(RESET);
+    return menu_option;
+}
 
 int main()
 {
     FlightDepartureList *departureList = init_flight_departure_list();
-    int count = departureList->count;
+    int choice;
 
-    while (1)
+    do
     {
-        if (menu_option == 99)
-        {
-            menu_option = get_menu_choice(count);
-        }
-        else
-        {
-            char inp[3];
-            printf("\n(y)Display Menu again or (n)Quit Program\n");
-            printf("Y/N: " YELLOW);
-            scanf("%s", inp);
-            printf(RESET);
-            if (inp[0] == 'n' || inp[0] == 'N')
-            {
-                menu_option = 0;
-            }
-            else if (inp[0] == 'y' || inp[0] == 'Y')
-            {
-                menu_option = get_menu_choice(count);
-            }
-        }
+        printf("\n \n");
+        printf(CYAN "========== Flight List Information  ==========\n" RESET);
+        printf("Total flights in the system: %d\n", departureList->count);
+        printf(CYAN "========== Flight Management System ==========\n" RESET);
+        printf(YELLOW "1" RESET ". Add a new flight to list\n");
+        printf(YELLOW "2" RESET ". Add a passenger to a flight-departure\n");
+        printf(YELLOW "3" RESET ". Retrieve flight by position in list\n");
+        printf(YELLOW "5" RESET ". Find flight by destination\n");
+        printf(YELLOW "9" RESET ". Generate Dummy data\n");
+        printf(YELLOW "0" RESET ". Exit Program\n");
+        printf(CYAN "============================================\n" RESET);
 
-        switch (menu_option)
+        choice = get_user_selection();
+
+        switch (choice)
         {
         case 1:
+            printf("\nYou selected Option 1\n");
             add_new_flight(departureList);
+            pause();
             break;
 
         case 2:
+            printf("\nYou selected Option 2\n");
             add_new_passenger(departureList);
+            pause();
             break;
 
         case 3:
+            printf("\nYou selected Option 3\n");
             display_flight_by_pos(departureList);
+            pause();
             break;
 
         case 4:
-            display_flight_details_menu(departureList);
+            printf("\nYou selected Option 4\n");
+            printf("Performing actions for Option 4...\n");
+            pause();
             break;
+
         case 5:
-            printf("Find by dest\n");
+            printf("\nYou selected Option 5\n");
+            find_flight_by_destination(departureList);
+            pause();
             break;
 
         case 6:
-            display_passengers_menu(departureList);
+            printf("\nYou selected Option 6\n");
+            printf("Performing actions for Option 6...\n");
+            pause();
             break;
 
         case 7:
-            remove_flight_menu(departureList);
+            printf("\nYou selected Option 7\n");
+            printf("Performing actions for Option 7...\n");
+            pause();
             break;
 
         case 8:
-            remove_passenger_menu(departureList);
+            printf("\nYou selected Option 8\n");
+            printf("Performing actions for Option 8...\n");
+            pause();
             break;
 
         case 9:
+            printf("\nYou selected Option 9\n");
             add_sample_data(departureList);
+            pause();
             break;
+
         case 0:
-            printf("Exiting.\n");
-            return 0;
+            printf("\nExiting program.\n");
+            break;
 
         default:
-            printf("Invalid choice. Please try again.\n");
+            printf("\nInvalid choice! Please enter a number between 0 and 9.\n");
+            pause();
         }
-    }
+
+    } while (choice != 0);
 }

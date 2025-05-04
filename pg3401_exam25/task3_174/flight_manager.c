@@ -1,6 +1,7 @@
 #include "source.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // Function to create a new passenger node
 PassengerNode *create_passenger(int seatNumber, const char *name, int age)
@@ -185,6 +186,7 @@ FlightNode *find_flight_by_id(FlightDepartureList *list, const char *flightId)
     return NULL; // Flight not found
 }
 
+// Function to find a flight by position in the list
 FlightNode *find_flight_by_position(FlightDepartureList *list, int position)
 {
     if (position <= 0 || position > list->count)
@@ -293,90 +295,6 @@ void remove_passenger(FlightNode *flight, int seatNumber)
         fprintf(stderr, "Passenger with seat number %d not found on flight %s\n",
                 seatNumber, flight->flightId);
     }
-}
-
-// Function to display all flights
-void display_all_flights(FlightDepartureList *list)
-{
-    if (list->head == NULL)
-    {
-        printf("No flights in the system.\n");
-        return;
-    }
-
-    printf("\n===== FLIGHT DEPARTURE LIST =====\n");
-    printf("Total flights: %d\n\n", list->count);
-
-    FlightNode *current = list->head;
-    int flightNum = 1;
-
-    while (current != NULL)
-    {
-        printf("%d. Flight: %s to %s, Departure: %04d, Seats: %d\n",
-               flightNum++, current->flightId, current->destination,
-               current->departureTime, current->seats);
-        current = current->next;
-    }
-    printf("===============================\n\n");
-}
-
-// Function to display details of a specific flight
-void display_flight_details(FlightNode *flight)
-{
-    if (flight == NULL)
-    {
-        printf("Flight not found.\n");
-        return;
-    }
-
-    printf("\n===== FLIGHT DETAILS =====\n");
-    printf("Flight ID: %s\n", flight->flightId);
-    printf("Destination: %s\n", flight->destination);
-    printf("Departure Time: %04d\n", flight->departureTime);
-    printf("Total Seats: %d\n", flight->seats);
-
-    // Count passengers
-    int passengerCount = 0;
-    PassengerNode *current = flight->passengers;
-    while (current != NULL)
-    {
-        passengerCount++;
-        current = current->next;
-    }
-
-    printf("Passengers: %d\n", passengerCount);
-    printf("=========================\n\n");
-}
-
-// Function to display all passengers on a flight
-void display_passengers_on_flight(FlightNode *flight)
-{
-    if (flight == NULL)
-    {
-        printf("Flight not found.\n");
-        return;
-    }
-
-    if (flight->passengers == NULL)
-    {
-        printf("No passengers on flight %s to %s.\n", flight->flightId, flight->destination);
-        return;
-    }
-
-    printf("\n===== PASSENGERS ON FLIGHT %s =====\n", flight->flightId);
-    printf("Destination: %s, Departure: %04d\n\n", flight->destination, flight->departureTime);
-
-    PassengerNode *current = flight->passengers;
-    int count = 1;
-
-    while (current != NULL)
-    {
-        printf("%d. Seat %d: %s, Age: %d\n",
-               count++, current->seatNumber, current->name, current->age);
-        current = current->next;
-    }
-
-    printf("==================================\n\n");
 }
 
 // Function to free the passenger list
