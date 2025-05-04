@@ -255,6 +255,100 @@ void remove_flight(FlightDepartureList *list, const char *flightId)
     list->count--;
 }
 
+// Function to change a passenger's seat number
+int change_passenger_seat(FlightNode *flight, int oldSeatNumber, int newSeatNumber)
+{
+    // Check if the flight exists
+    if (flight == NULL)
+    {
+        fprintf(stderr, "Flight does not exist\n");
+        return 1;
+    }
+
+    // Check if the new seat number is valid
+    if (newSeatNumber <= 0 || newSeatNumber > flight->seats)
+    {
+        fprintf(stderr, "Invalid new seat number %d for flight %s\n", newSeatNumber, flight->flightId);
+        return 2;
+    }
+
+    // Check if new seat is already taken
+    PassengerNode *current = flight->passengers;
+    while (current != NULL)
+    {
+        if (current->seatNumber == newSeatNumber)
+        {
+            fprintf(stderr, "Seat %d is already taken on flight %s\n", newSeatNumber, flight->flightId);
+            return 3;
+        }
+        current = current->next;
+    }
+
+    // Find the passenger with the old seat number
+    current = flight->passengers;
+    PassengerNode *target = NULL;
+
+    while (current != NULL)
+    {
+        if (current->seatNumber == oldSeatNumber)
+        {
+            target = current;
+            break;
+        }
+        current = current->next;
+    }
+
+    if (target == NULL)
+    {
+        fprintf(stderr, "No passenger found in seat %d on flight %s\n", oldSeatNumber, flight->flightId);
+        return 4;
+    }
+
+    // Remove the passenger from the linked list
+    if (target == flight->passengers)
+    {
+        // Target is the head of the list
+        flight->passengers = target->next;
+    }
+    else
+    {
+        // Find the node before target
+        current = flight->passengers;
+        while (current != NULL && current->next != target)
+        {
+            current = current->next;
+        }
+
+        if (current != NULL)
+        {
+            current->next = target->next;
+        }
+    }
+
+    // Update seat number
+    target->seatNumber = newSeatNumber;
+    target->next = NULL;
+
+    // Reinsert the passenger in the correct position (maintaining sort order)
+    if (flight->passengers == NULL || newSeatNumber < flight->passengers->seatNumber)
+    {
+        target->next = flight->passengers;
+        flight->passengers = target;
+        return 0;
+    }
+
+    current = flight->passengers;
+    while (current->next != NULL && current->next->seatNumber < newSeatNumber)
+    {
+        current = current->next;
+    }
+
+    target->next = current->next;
+    current->next = target;
+
+    return 0; // Success
+}
+
 // Function to free the passenger list
 void free_passengers(PassengerNode *head)
 {

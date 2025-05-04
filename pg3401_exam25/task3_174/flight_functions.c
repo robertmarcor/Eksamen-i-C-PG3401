@@ -12,14 +12,21 @@ void clear_input_buffer(void)
         ;
 }
 
-// Display Functions
+// SUMMARY
+// This flight management system uses linked list data structures to find flights and passengers:
+// Flights are stored in a doubly linked list (FlightDepartureList) allowing bidirectional traversal
+// Each flight node contains a singly linked list of passengers sorted by seat number
+// Flight operations (add, find, remove) traverse the list using next/prev pointers
 
-// Function to display all flights
+// Passenger operations first find the target flight, then modify/read its passenger list
+// this handles user interaction, while flight_manager.c functions handle the data operations
+// All memory is dynamically allocated and freed in flight_manager.c free_flight_departure_list
+
 void display_all_flights(FlightDepartureList *list)
 {
     if (list->head == NULL)
     {
-        printf("No flights in the system.\n");
+        printf(RED "No flights in the system.\n" RESET);
         return;
     }
 
@@ -31,11 +38,12 @@ void display_all_flights(FlightDepartureList *list)
 
     while (current != NULL)
     {
-        printf("%d. Flight: %s to %s, Departure: %04d\n",
+        printf(MAGENTA "%d. Flight: %s to %s, Departure: %04d\n" RESET,
                flightNum++, current->flightId, current->destination,
                current->departureTime);
         current = current->next;
     }
+    printf("\n");
 }
 
 // Function to display details of a specific flight
@@ -43,11 +51,11 @@ void display_flight_details(FlightNode *flight)
 {
     if (flight == NULL)
     {
-        printf("Flight not found.\n");
+        printf(RED "Flight not found.\n" RESET);
         return;
     }
 
-    printf("\n===== FLIGHT DETAILS =====\n");
+    printf(BLUE "\n===== FLIGHT DETAILS =====\n" RESET);
     printf("Flight ID: %s\n", flight->flightId);
     printf("Destination: %s\n", flight->destination);
     printf("Departure Time: %04d\n", flight->departureTime);
@@ -63,7 +71,7 @@ void display_flight_details(FlightNode *flight)
     }
 
     printf("Passengers: %d\n", passengerCount);
-    printf("=========================\n\n");
+    printf(BLUE "=========================\n\n" RESET);
 }
 
 // Function to display all passengers on a flight
@@ -71,17 +79,17 @@ void display_passengers_on_flight(FlightNode *flight)
 {
     if (flight == NULL)
     {
-        printf("Flight not found.\n");
+        printf(RED "Flight not found.\n" RESET);
         return;
     }
 
     if (flight->passengers == NULL)
     {
-        printf("No passengers on flight %s to %s.\n", flight->flightId, flight->destination);
+        printf(YELLOW "No passengers on flight %s to %s.\n" RESET, flight->flightId, flight->destination);
         return;
     }
 
-    printf("\n===== PASSENGERS ON FLIGHT %s =====\n", flight->flightId);
+    printf(GREEN "\n===== PASSENGERS ON FLIGHT %s =====\n" RESET, flight->flightId);
     printf("Destination: %s, Departure: %04d\n\n", flight->destination, flight->departureTime);
 
     PassengerNode *current = flight->passengers;
@@ -94,7 +102,7 @@ void display_passengers_on_flight(FlightNode *flight)
         current = current->next;
     }
 
-    printf("==================================\n\n");
+    printf(GREEN "==================================\n\n" RESET);
 }
 
 // Search for a passenger by name across all flights
@@ -103,7 +111,7 @@ void find_passenger_by_name(FlightDepartureList *list)
     char passengerName[100];
     int found = 0;
 
-    printf("\n===== FIND PASSENGER BY NAME =====\n");
+    printf(BLUE "\n===== FIND PASSENGER BY NAME =====\n" RESET);
     printf("Enter passenger name: ");
     scanf("%s", passengerName);
     clear_input_buffer();
@@ -120,7 +128,7 @@ void find_passenger_by_name(FlightDepartureList *list)
     FlightNode *currentFlight = list->head;
     int flightPos = 0;
 
-    printf("\nSearching for passenger: %s\n", passengerName);
+    printf(YELLOW "\nSearching for passenger: %s\n" RESET, passengerName);
 
     while (currentFlight != NULL)
     {
@@ -143,10 +151,10 @@ void find_passenger_by_name(FlightDepartureList *list)
             {
                 if (!found)
                 {
-                    printf("\nPassenger '%s' found on the following flights:\n", passengerName);
+                    printf(GREEN "\nPassenger '%s' found on the following flights:\n" RESET, passengerName);
                 }
 
-                printf("--------------------------------\n");
+                printf(BLUE "--------------------------------\n" RESET);
                 printf("Flight: %s (position %d in list)\n", currentFlight->flightId, flightPos);
                 printf("Destination: %s\n", currentFlight->destination);
                 printf("Departure Time: %04d\n", currentFlight->departureTime);
@@ -165,7 +173,7 @@ void find_passenger_by_name(FlightDepartureList *list)
 
     if (!found)
     {
-        printf("No passenger with name '%s' found on any flight.\n", passengerName);
+        printf(RED "No passenger with name '%s' found on any flight.\n" RESET, passengerName);
     }
 }
 
@@ -174,11 +182,11 @@ void find_passengers_on_multiple_flights(FlightDepartureList *list)
 {
     if (list->head == NULL)
     {
-        printf("No flights in the system.\n");
+        printf(RED "No flights in the system.\n" RESET);
         return;
     }
 
-    printf("\n===== PASSENGERS BOOKED ON MULTIPLE FLIGHTS =====\n");
+    printf(MAGENTA "\n===== PASSENGERS BOOKED ON MULTIPLE FLIGHTS =====\n" RESET);
     int foundAny = 0;
 
     // For each flight
@@ -237,7 +245,7 @@ void find_passengers_on_multiple_flights(FlightDepartureList *list)
 
                 if (!alreadyPrinted)
                 {
-                    printf("Passenger: %s (Age: %d) is booked on %d flights\n",
+                    printf(GREEN "Passenger: %s (Age: %d) is booked on %d flights\n" RESET,
                            passenger->name, passenger->age, count);
                     foundAny = 1;
                 }
@@ -251,7 +259,7 @@ void find_passengers_on_multiple_flights(FlightDepartureList *list)
 
     if (!foundAny)
     {
-        printf("No passengers are booked on multiple flights.\n");
+        printf(YELLOW "No passengers are booked on multiple flights.\n" RESET);
     }
 }
 // UI Interaction Functions
@@ -262,8 +270,8 @@ void add_new_flight(FlightDepartureList *list)
     char destination[50];
     int seats, departureTime;
 
-    printf("\n===== ADD NEW FLIGHT =====\n");
-    printf("Enter flight ID (e.g., BA-42): ");
+    printf(BLUE "\n===== ADD NEW FLIGHT =====\n" RESET);
+    printf("Enter flight ID (e.g., BA-42 Case-Sensetive): ");
     scanf("%s", flightId);
 
     printf("Enter destination: ");
@@ -279,33 +287,33 @@ void add_new_flight(FlightDepartureList *list)
 
     if (result == 0)
     {
-        printf("Flight %s added successfully.\n", flightId);
+        printf(GREEN "Flight %s added successfully.\n" RESET, flightId);
     }
     else if (result == 1)
     {
-        printf("Failed to add flight: Flight ID %s already exists.\n", flightId);
+        printf(RED "Failed to add flight: Flight ID %s already exists.\n" RESET, flightId);
     }
     else
     {
-        printf("Failed to add flight: Unknown error occurred.\n");
+        printf(RED "Failed to add flight: Unknown error occurred.\n" RESET);
     }
 }
 
-void add_new_passenger(FlightDepartureList *list)
+void add_new_passenger_to_flight(FlightDepartureList *list)
 {
     char flightId[20];
     char passengerName[50];
     int seatNumber, age;
 
-    printf("\n===== ADD PASSENGER =====\n");
-    printf("Enter flight ID: ");
+    printf(BLUE "\n===== ADD PASSENGER =====\n" RESET);
+    printf("Enter flight ID (Case-Sensetive): ");
     scanf("%s", flightId);
     clear_input_buffer();
 
     FlightNode *flight = find_flight_by_id(list, flightId);
     if (flight == NULL)
     {
-        printf("Flight %s not found.\n", flightId);
+        printf(RED "Flight %s not found.\n" RESET, flightId);
         return;
     }
 
@@ -322,7 +330,7 @@ void add_new_passenger(FlightDepartureList *list)
     clear_input_buffer();
 
     add_passenger(flight, seatNumber, passengerName, age);
-    printf("Passenger %s added to flight %s.\n", passengerName, flightId);
+    printf(GREEN "Passenger %s added to flight %s.\n" RESET, passengerName, flightId);
 }
 
 // Retrieves flight by position and displays all data including passenger list
@@ -330,11 +338,11 @@ void display_flight_by_pos(FlightDepartureList *list)
 {
     int n;
 
-    printf("\n===== RETRIEVE FLIGHT BY POSITION =====\n");
+    printf(BLUE "\n===== RETRIEVE FLIGHT BY POSITION =====\n" RESET);
     printf("Enter position (1-%d): ", list->count);
     if (scanf("%d", &n) != 1)
     {
-        printf("Invalid input. Please enter a number.\n");
+        printf(RED "Invalid input. Please enter a number.\n" RESET);
         clear_input_buffer();
         return;
     }
@@ -344,11 +352,11 @@ void display_flight_by_pos(FlightDepartureList *list)
     FlightNode *flight = find_flight_by_position(list, n);
     if (flight == NULL)
     {
-        printf("No flight found at position %d.\n", n);
+        printf(RED "No flight found at position %d.\n" RESET, n);
         return;
     }
 
-    printf("\n===== FLIGHT AT POSITION %d =====\n", n);
+    printf(BLUE "\n===== FLIGHT AT POSITION %d =====\n" RESET, n);
     printf("Flight ID: %s\n", flight->flightId);
     printf("Destination: %s\n", flight->destination);
     printf("Departure Time: %04d\n", flight->departureTime);
@@ -367,7 +375,7 @@ void display_flight_by_pos(FlightDepartureList *list)
     // Display passenger list if any
     if (passengerCount > 0)
     {
-        printf("\n===== PASSENGER LIST =====\n");
+        printf(GREEN "\n===== PASSENGER LIST =====\n" RESET);
         current = flight->passengers;
         int count = 1;
         while (current != NULL)
@@ -379,7 +387,7 @@ void display_flight_by_pos(FlightDepartureList *list)
     }
     else
     {
-        printf("\nNo passengers on this flight.\n");
+        printf(YELLOW "\nNo passengers on this flight.\n" RESET);
     }
 }
 
@@ -394,7 +402,7 @@ void remove_flight_menu(FlightDepartureList *list)
     clear_input_buffer();
 
     remove_flight(list, flightId);
-    printf("Flight %s removed successfully.\n", flightId);
+    printf(GREEN "Flight %s removed successfully.\n" RESET, flightId);
 }
 
 void add_sample_data(FlightDepartureList *list)
@@ -424,7 +432,7 @@ void add_sample_data(FlightDepartureList *list)
     add_passenger(flightExample3, 19, "Li", 39);
     add_passenger(flightExample3, 3, "Mei", 24);
 
-    printf("Sample data generated.\n");
+    printf(GREEN "Sample data generated.\n" RESET);
 }
 
 // Finds flight by destination and returns its position in the list
@@ -433,7 +441,7 @@ void find_flight_by_destination(FlightDepartureList *list)
     char destination[50];
     int found = 0;
 
-    printf("\n===== FIND FLIGHT BY DESTINATION =====\n");
+    printf(BLUE "\n===== FIND FLIGHT BY DESTINATION =====\n" RESET);
     printf("Enter destination: ");
     scanf("%s", destination);
     clear_input_buffer();
@@ -466,7 +474,7 @@ void find_flight_by_destination(FlightDepartureList *list)
 
         if (strcmp(current_dest_lower, dest_lower) == 0)
         {
-            printf("\nFlight to %s found at position %d (Flight ID: %s)\n",
+            printf(GREEN "\nFlight to %s found at position %d (Flight ID: %s)\n" RESET,
                    current->destination, position, current->flightId);
             found = 1;
 
@@ -479,6 +487,59 @@ void find_flight_by_destination(FlightDepartureList *list)
 
     if (!found)
     {
-        printf("No flights found to destination: %s\n", destination);
+        printf(RED "No flights found to destination: %s\n" RESET, destination);
+    }
+}
+
+// Function to change a passenger's seat
+void change_passenger_seat_menu(FlightDepartureList *list)
+{
+    char flightId[20];
+    int oldSeat, newSeat;
+
+    printf(BLUE "\n===== CHANGE PASSENGER SEAT =====\n" RESET);
+    printf("Enter flight ID: ");
+    scanf("%s", flightId);
+    clear_input_buffer();
+
+    FlightNode *flight = find_flight_by_id(list, flightId);
+    if (flight == NULL)
+    {
+        printf(RED "Flight %s not found.\n" RESET, flightId);
+        return;
+    }
+
+    // Display current passengers for reference
+    display_passengers_on_flight(flight);
+
+    printf("Enter current seat number: ");
+    scanf("%d", &oldSeat);
+    clear_input_buffer();
+
+    printf("Enter new seat number (1-%d): ", flight->seats);
+    scanf("%d", &newSeat);
+    clear_input_buffer();
+
+    int result = change_passenger_seat(flight, oldSeat, newSeat);
+
+    switch (result)
+    {
+    case 0:
+        printf(GREEN "Passenger seat successfully changed from %d to %d.\n" RESET, oldSeat, newSeat);
+        break;
+    case 1:
+        printf(RED "Error: Flight does not exist.\n" RESET);
+        break;
+    case 2:
+        printf(RED "Error: Invalid new seat number %d (valid range: 1-%d).\n" RESET, newSeat, flight->seats);
+        break;
+    case 3:
+        printf(RED "Error: Seat %d is already taken.\n" RESET, newSeat);
+        break;
+    case 4:
+        printf(RED "Error: No passenger found in seat %d.\n" RESET, oldSeat);
+        break;
+    default:
+        printf(RED "Unknown error occurred.\n" RESET);
     }
 }

@@ -65,10 +65,10 @@ int main()
         printf(YELLOW "2" RESET ". Add a passenger to a flight-departure\n");
         printf(YELLOW "3" RESET ". Retrieve flight by position in list\n");
         printf(YELLOW "4" RESET ". Find flight by destination\n");
-        printf(YELLOW "5" RESET ". Delete flight and it's Passangers\n");
-        printf(YELLOW "6" RESET ". Find flight by passanger name\n");
-        printf(YELLOW "7" RESET ". Find passanger with multiple flights\n");
-        printf(YELLOW "8" RESET ". NOT YET IMPLEMENTED\n");
+        printf(YELLOW "5" RESET ". Delete flight and it's Passengers\n");
+        printf(YELLOW "6" RESET ". Change seat of passenger\n");
+        printf(YELLOW "7" RESET ". Find flight by Passenger name\n");
+        printf(YELLOW "8" RESET ". Find Passenger with multiple flights\n");
         printf(YELLOW "9" RESET ". Generate Dummy data\n");
         printf(YELLOW "0" RESET ". Exit Program\n");
         printf(CYAN "============================================\n" RESET);
@@ -85,7 +85,7 @@ int main()
 
         case 2:
             printf("\nYou selected Option 2\n");
-            add_new_passenger(departureList);
+            add_new_passenger_to_flight(departureList);
             pause();
             break;
 
@@ -109,19 +109,20 @@ int main()
 
         case 6:
             printf("\nYou selected Option 6\n");
-            find_passenger_by_name(departureList);
+            change_passenger_seat_menu(departureList);
             pause();
             break;
 
         case 7:
             printf("\nYou selected Option 7\n");
-            find_passengers_on_multiple_flights(departureList);
+            find_passenger_by_name(departureList);
             pause();
             break;
 
         case 8:
             printf("\nYou selected Option 8\n");
-            printf("Performing actions for Option 8...\n");
+            find_passengers_on_multiple_flights(departureList);
+
             pause();
             break;
 
@@ -133,10 +134,12 @@ int main()
 
         case 0:
             printf("\nExiting program.\n");
+            free_flight_departure_list(departureList);
             break;
 
         default:
             printf("\nInvalid choice! Please enter a number between 0 and 9.\n");
+            free_flight_departure_list(departureList);
             pause();
         }
 
