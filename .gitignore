@@ -5,5 +5,4 @@ pg3401_exam25/logdata/ewa_data.bin
 
 pg3401_exam25/logdata/ewa_log.txt
 pg3401_exam25/logdata/ewa_data.bin
-pg3401_exam25/**/obj
 pg3401_exam25/**/obj/*.o
