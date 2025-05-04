@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void addNewFlight(FlightDepartureList *list)
+void add_new_flight(FlightDepartureList *list)
 {
     char flightId[20];
     char destination[50];
@@ -23,11 +23,11 @@ void addNewFlight(FlightDepartureList *list)
     printf("Enter departure time (24-hour format, e.g., 1430 for 2:30 PM): ");
     scanf("%d", &departureTime);
 
-    addFlight(list, flightId, destination, seats, departureTime);
+    add_flight(list, flightId, destination, seats, departureTime);
     printf("Flight %s added successfully.\n", flightId);
 }
 
-void addNewPassenger(FlightDepartureList *list)
+void add_new_passenger(FlightDepartureList *list)
 {
     char flightId[20];
     char passengerName[50];
@@ -37,7 +37,7 @@ void addNewPassenger(FlightDepartureList *list)
     printf("Enter flight ID: ");
     scanf("%s", flightId);
 
-    FlightNode *flight = findFlightById(list, flightId);
+    FlightNode *flight = find_flight_by_id(list, flightId);
     if (flight == NULL)
     {
         printf("Flight %s not found.\n", flightId);
@@ -53,33 +53,33 @@ void addNewPassenger(FlightDepartureList *list)
     printf("Enter passenger age: ");
     scanf("%d", &age);
 
-    addPassenger(flight, seatNumber, passengerName, age);
+    add_passenger(flight, seatNumber, passengerName, age);
     printf("Passenger %s added to flight %s.\n", passengerName, flightId);
 }
 
-void displayFlightDetailsMenu(FlightDepartureList *list)
+void display_flight_details_menu(FlightDepartureList *list)
 {
     char flightId[20];
 
     printf("\nEnter flight ID: ");
     scanf("%s", flightId);
 
-    FlightNode *flight = findFlightById(list, flightId);
-    displayFlightDetails(flight);
+    FlightNode *flight = find_flight_by_id(list, flightId);
+    display_flight_details(flight);
 }
 
-void displayPassengersMenu(FlightDepartureList *list)
+void display_passengers_menu(FlightDepartureList *list)
 {
     char flightId[20];
 
     printf("\nEnter flight ID: ");
     scanf("%s", flightId);
 
-    FlightNode *flight = findFlightById(list, flightId);
-    displayPassengersOnFlight(flight);
+    FlightNode *flight = find_flight_by_id(list, flightId);
+    display_passengers_on_flight(flight);
 }
 
-void removeFlightMenu(FlightDepartureList *list)
+void remove_flight_menu(FlightDepartureList *list)
 {
     char flightId[20];
 
@@ -87,11 +87,11 @@ void removeFlightMenu(FlightDepartureList *list)
     printf("Enter flight ID to remove: ");
     scanf("%s", flightId);
 
-    removeFlight(list, flightId);
+    remove_flight(list, flightId);
     printf("Flight %s removed successfully.\n", flightId);
 }
 
-void removePassengerMenu(FlightDepartureList *list)
+void remove_passenger_menu(FlightDepartureList *list)
 {
     char flightId[20];
     int seatNumber;
@@ -100,7 +100,7 @@ void removePassengerMenu(FlightDepartureList *list)
     printf("Enter flight ID: ");
     scanf("%s", flightId);
 
-    FlightNode *flight = findFlightById(list, flightId);
+    FlightNode *flight = find_flight_by_id(list, flightId);
     if (flight == NULL)
     {
         printf("Flight %s not found.\n", flightId);
@@ -110,35 +110,35 @@ void removePassengerMenu(FlightDepartureList *list)
     printf("Enter seat number to remove: ");
     scanf("%d", &seatNumber);
 
-    removePassenger(flight, seatNumber);
+    remove_passenger(flight, seatNumber);
     printf("Passenger with seat number %d removed from flight %s.\n", seatNumber, flightId);
 }
 
-void addSampleData(FlightDepartureList *list)
+void add_sample_data(FlightDepartureList *list)
 {
     // Add sample flights
-    addFlight(list, "BA-42", "London", 150, 1430);
-    addFlight(list, "LH-101", "Berlin", 200, 1545);
-    addFlight(list, "AF-202", "Paris", 180, 1620);
+    add_flight(list, "BA-42", "Bergen", 100, 1200);
+    add_flight(list, "AA-12", "Oslo", 200, 1500);
+    add_flight(list, "CH-99", "Hong Kong", 300, 2130);
 
     // Find the flights
-    FlightNode *londonFlight = findFlightById(list, "BA-42");
-    FlightNode *berlinFlight = findFlightById(list, "LH-101");
-    FlightNode *parisFlight = findFlightById(list, "AF-202");
+    FlightNode *bergenFlight = find_flight_by_id(list, "BA-42");
+    FlightNode *osloFlight = find_flight_by_id(list, "AA-12");
+    FlightNode *hongKongFlight = find_flight_by_id(list, "CH-99");
 
-    // Add passengers to London flight
-    addPassenger(londonFlight, 12, "John_Smith", 35);
-    addPassenger(londonFlight, 5, "Emma_Johnson", 42);
-    addPassenger(londonFlight, 23, "Michael_Brown", 28);
+    // Add passengers to Bergen flight (Norwegian names)
+    add_passenger(bergenFlight, 12, "Ole_Hansen", 35);
+    add_passenger(bergenFlight, 5, "Ingrid_Larsen", 42);
+    add_passenger(bergenFlight, 23, "Magnus_Olsen", 28);
 
-    // Add passengers to Berlin flight
-    addPassenger(berlinFlight, 15, "Sarah_Davis", 31);
-    addPassenger(berlinFlight, 42, "Robert_Wilson", 48);
+    // Add passengers to Oslo flight (Norwegian names)
+    add_passenger(osloFlight, 15, "Sigrid_Johansen", 31);
+    add_passenger(osloFlight, 42, "Anders_Pedersen", 48);
 
-    // Add passengers to Paris flight
-    addPassenger(parisFlight, 7, "Jennifer_Lee", 27);
-    addPassenger(parisFlight, 19, "David_Clark", 39);
-    addPassenger(parisFlight, 3, "Lisa_Anderson", 24);
+    // Add passengers to Hong Kong flight (Chinese names)
+    add_passenger(hongKongFlight, 7, "Wei_Zhang", 27);
+    add_passenger(hongKongFlight, 19, "Li_Chen", 39);
+    add_passenger(hongKongFlight, 3, "Mei_Wong", 24);
 
     printf("Sample data added successfully.\n");
 }

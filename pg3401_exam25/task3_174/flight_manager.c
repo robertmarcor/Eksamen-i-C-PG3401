@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 // Function to create a new passenger node
-PassengerNode *createPassenger(int seatNumber, const char *name, int age)
+PassengerNode *create_passenger(int seatNumber, const char *name, int age)
 {
     PassengerNode *newPassenger = (PassengerNode *)malloc(sizeof(PassengerNode));
     if (newPassenger == NULL)
@@ -30,7 +30,7 @@ PassengerNode *createPassenger(int seatNumber, const char *name, int age)
 }
 
 // Function to create a new flight node
-FlightNode *createFlight(const char *flightId, const char *destination, int seats, int departureTime)
+FlightNode *create_flight(const char *flightId, const char *destination, int seats, int departureTime)
 {
     FlightNode *newFlight = (FlightNode *)malloc(sizeof(FlightNode));
     if (newFlight == NULL)
@@ -68,7 +68,7 @@ FlightNode *createFlight(const char *flightId, const char *destination, int seat
 }
 
 // Initialize a new flight departure list
-FlightDepartureList *initFlightDepartureList()
+FlightDepartureList *init_flight_departure_list()
 {
     FlightDepartureList *list = (FlightDepartureList *)malloc(sizeof(FlightDepartureList));
     if (list == NULL)
@@ -85,7 +85,7 @@ FlightDepartureList *initFlightDepartureList()
 }
 
 // Function to add a passenger to a flight (maintaining sorted order by seat number)
-void addPassenger(FlightNode *flight, int seatNumber, const char *name, int age)
+void add_passenger(FlightNode *flight, int seatNumber, const char *name, int age)
 {
     // Check if the seat number is valid
     if (seatNumber <= 0 || seatNumber > flight->seats)
@@ -106,7 +106,7 @@ void addPassenger(FlightNode *flight, int seatNumber, const char *name, int age)
         current = current->next;
     }
 
-    PassengerNode *newPassenger = createPassenger(seatNumber, name, age);
+    PassengerNode *newPassenger = create_passenger(seatNumber, name, age);
 
     // If no passengers or new passenger has lower seat number than head
     if (flight->passengers == NULL || seatNumber < flight->passengers->seatNumber)
@@ -129,8 +129,8 @@ void addPassenger(FlightNode *flight, int seatNumber, const char *name, int age)
 }
 
 // Function to add a flight to the departure list
-void addFlight(FlightDepartureList *list, const char *flightId, const char *destination,
-               int seats, int departureTime)
+void add_flight(FlightDepartureList *list, const char *flightId, const char *destination,
+                int seats, int departureTime)
 {
     // Check if flight ID already exists
     FlightNode *current = list->head;
@@ -144,7 +144,7 @@ void addFlight(FlightDepartureList *list, const char *flightId, const char *dest
         current = current->next;
     }
 
-    FlightNode *newFlight = createFlight(flightId, destination, seats, departureTime);
+    FlightNode *newFlight = create_flight(flightId, destination, seats, departureTime);
 
     // If list is empty
     if (list->head == NULL)
@@ -164,7 +164,7 @@ void addFlight(FlightDepartureList *list, const char *flightId, const char *dest
 }
 
 // Function to find a flight by ID
-FlightNode *findFlightById(FlightDepartureList *list, const char *flightId)
+FlightNode *find_flight_by_id(FlightDepartureList *list, const char *flightId)
 {
     FlightNode *current = list->head;
 
@@ -181,9 +181,9 @@ FlightNode *findFlightById(FlightDepartureList *list, const char *flightId)
 }
 
 // Function to remove a flight from the list
-void removeFlight(FlightDepartureList *list, const char *flightId)
+void remove_flight(FlightDepartureList *list, const char *flightId)
 {
-    FlightNode *flight = findFlightById(list, flightId);
+    FlightNode *flight = find_flight_by_id(list, flightId);
 
     if (flight == NULL)
     {
@@ -231,7 +231,7 @@ void removeFlight(FlightDepartureList *list, const char *flightId)
 }
 
 // Function to remove a passenger from a flight
-void removePassenger(FlightNode *flight, int seatNumber)
+void remove_passenger(FlightNode *flight, int seatNumber)
 {
     if (flight->passengers == NULL)
     {
@@ -272,7 +272,7 @@ void removePassenger(FlightNode *flight, int seatNumber)
 }
 
 // Function to display all flights
-void displayAllFlights(FlightDepartureList *list)
+void display_all_flights(FlightDepartureList *list)
 {
     if (list->head == NULL)
     {
@@ -297,7 +297,7 @@ void displayAllFlights(FlightDepartureList *list)
 }
 
 // Function to display details of a specific flight
-void displayFlightDetails(FlightNode *flight)
+void display_flight_details(FlightNode *flight)
 {
     if (flight == NULL)
     {
@@ -325,7 +325,7 @@ void displayFlightDetails(FlightNode *flight)
 }
 
 // Function to display all passengers on a flight
-void displayPassengersOnFlight(FlightNode *flight)
+void display_passengers_on_flight(FlightNode *flight)
 {
     if (flight == NULL)
     {
@@ -356,7 +356,7 @@ void displayPassengersOnFlight(FlightNode *flight)
 }
 
 // Function to free the passenger list
-void freePassengers(PassengerNode *head)
+void free_passengers(PassengerNode *head)
 {
     PassengerNode *current = head;
     PassengerNode *next;
@@ -371,7 +371,7 @@ void freePassengers(PassengerNode *head)
 }
 
 // Function to free the entire flight departure list
-void freeFlightDepartureList(FlightDepartureList *list)
+void free_flight_departure_list(FlightDepartureList *list)
 {
     FlightNode *current = list->head;
     FlightNode *next;
@@ -381,7 +381,7 @@ void freeFlightDepartureList(FlightDepartureList *list)
         next = current->next;
 
         // Free the passenger list first
-        freePassengers(current->passengers);
+        free_passengers(current->passengers);
 
         // Free the flight node
         free(current->flightId);

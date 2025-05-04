@@ -19,7 +19,7 @@ void quick_menu(int selection)
 
 int main()
 {
-    FlightDepartureList *departureList = initFlightDepartureList();
+    FlightDepartureList *departureList = init_flight_departure_list();
 
     while (1)
     {
@@ -38,22 +38,22 @@ int main()
         switch (menu_option)
         {
         case 1:
-            addNewFlight(departureList);
+            add_new_flight(departureList);
             quick_menu(1);
             break;
 
         case 2:
-            addNewPassenger(departureList);
+            add_new_passenger(departureList);
             quick_menu(2);
             break;
 
         case 3:
-            displayAllFlights(departureList);
+            display_all_flights(departureList);
             quick_menu(3);
             break;
 
         case 4:
-            displayFlightDetailsMenu(departureList);
+            display_flight_details_menu(departureList);
             quick_menu(4);
             break;
         case 5:
@@ -62,22 +62,22 @@ int main()
             break;
 
         case 6:
-            displayPassengersMenu(departureList);
+            display_passengers_menu(departureList);
             quick_menu(6);
             break;
 
         case 7:
-            removeFlightMenu(departureList);
+            remove_flight_menu(departureList);
             quick_menu(7);
             break;
 
         case 8:
-            removePassengerMenu(departureList);
+            remove_passenger_menu(departureList);
             quick_menu(8);
             break;
 
         case 9:
-            addSampleData(departureList);
+            add_sample_data(departureList);
             break;
         case -1: // Quick menu exit
             printf("Exiting.\n");
