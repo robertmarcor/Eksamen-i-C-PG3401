@@ -1,6 +1,6 @@
 INCLDIR = ./include
 CC = gcc
-CFLAGS = -O2 -include stdio.h
+CFLAGS = -O2 -include stdio.h -lpthread
 CFLAGS += -I$(INCLDIR)
 OBJDIR = obj
 
