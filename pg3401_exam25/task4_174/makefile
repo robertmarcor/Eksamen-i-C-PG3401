@@ -4,10 +4,10 @@ CFLAGS = -O2 -include stdio.h
 CFLAGS += -I$(INCLDIR)
 OBJDIR = obj
 
-_DEPS = source.h colors.h
+_DEPS = 
 DEPS = $(patsubst %,$(INCLDIR)/%,$(_DEPS))
 
-_OBJS = source.o task4_threads.o
+_OBJS = task4_threads.o
 OBJS = $(patsubst %,$(OBJDIR)/%,$(_OBJS))
 
 $(OBJDIR)/%.o: %.c $(DEPS)

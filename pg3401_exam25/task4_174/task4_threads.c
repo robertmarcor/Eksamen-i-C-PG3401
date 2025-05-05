@@ -14,14 +14,17 @@ pthread_mutex_t mutex;
 pthread_cond_t cond_full, cond_empty;
 int bytes_in_buffer = 0;
 
-void* thread_A(void* arg) {
-   FILE* fp = fopen("task4_pg2265.txt", "rb");
-   if (!fp) {
+void *thread_A(void *arg)
+{
+   FILE *fp = fopen("task4_pg2265.txt", "rb");
+   if (!fp)
+   {
       perror("Failed to open file");
       exit(EXIT_FAILURE);
    }
 
-   while (1) {
+   while (1)
+   {
       pthread_mutex_lock(&mutex);
       while (bytes_in_buffer == BUFFER_SIZE)
          pthread_cond_wait(&cond_empty, &mutex);
@@ -29,7 +32,8 @@ void* thread_A(void* arg) {
       int read_bytes = fread(buffer + bytes_in_buffer, 1, BUFFER_SIZE - bytes_in_buffer, fp);
       bytes_in_buffer += read_bytes;
 
-      if (read_bytes < BUFFER_SIZE - bytes_in_buffer) {
+      if (read_bytes < BUFFER_SIZE - bytes_in_buffer)
+      {
          pthread_mutex_unlock(&mutex);
          break;
       }
@@ -40,10 +44,12 @@ void* thread_A(void* arg) {
    pthread_exit(NULL);
 }
 
-void* thread_B(void* arg) {
+void *thread_B(void *arg)
+{
    memset(count, 0, sizeof(count));
 
-   while (1) {
+   while (1)
+   {
       pthread_mutex_lock(&mutex);
       while (bytes_in_buffer == 0)
          pthread_cond_wait(&cond_full, &mutex);
@@ -63,25 +69,30 @@ void* thread_B(void* arg) {
    pthread_exit(NULL);
 }
 
-int main(void) {
+int main(void)
+{
    pthread_t threadA, threadB;
-   void* memory_buffer = malloc(BUFFER_SIZE);
+   void *memory_buffer = malloc(BUFFER_SIZE);
 
-   if (pthread_create(&threadA, NULL, thrread_A, (void*)memory_buffer) != 0) {
+   if (pthread_create(&threadA, NULL, thread_A, (void *)memory_buffer) != 0)
+   {
       perror("Could not create thread A");
       exit(1);
    }
 
-   if (pthread_create(&threadB, NULL, thread_B, (void*)memory_buffer) != 0) {
+   if (pthread_create(&threadB, NULL, thread_B, (void *)memory_buffer) != 0)
+   {
       perror("Could not create thread B");
       exit(1);
    }
 
-   if (pthread_join(threadA, NULL) != 0) {
+   if (pthread_join(threadA, NULL) != 0)
+   {
       perror("Could not join thread A");
       exit(1);
    }
-   if (pthread_join(threadB, NULL) != 0) {
+   if (pthread_join(threadB, NULL) != 0)
+   {
       perror("Could not join thread B");
       exit(1);
    }
@@ -90,13 +101,3 @@ int main(void) {
 
    return 0;
 }
-
-
-
-
-
-
-
-
-
-
