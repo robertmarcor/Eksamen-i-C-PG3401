@@ -1,13 +1,13 @@
 INCLDIR = ./include
 CC = gcc
-CFLAGS = -O2 -include stdio.h
+CFLAGS = -O2 -include stdio.h -lpthread
 CFLAGS += -I$(INCLDIR)
 OBJDIR = obj
 
-_DEPS = source.h colors.h
+_DEPS = task4_threads.h
 DEPS = $(patsubst %,$(INCLDIR)/%,$(_DEPS))
 
-_OBJS = source.o task4_threads.o
+_OBJS = task4_threads.o dbj2.o tea.o
 OBJS = $(patsubst %,$(OBJDIR)/%,$(_OBJS))
 
 $(OBJDIR)/%.o: %.c $(DEPS)
@@ -18,4 +18,4 @@ task4_174: $(OBJS)
 
 .PHONY: clean
 clean:
-	rm -f $(OBJDIR)/*.o *~ core $(INCLDIR)/*~ task4_174 
+	rm -f $(OBJDIR)/*.o *~ core $(INCLDIR)/*~ task4_174
