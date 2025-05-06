@@ -38,6 +38,7 @@ void *thread_A(void *arg)
       perror("Failed to open file");
       exit(EXIT_FAILURE);
    }
+   printf("\nThread_A : %s opened successfully\n", data->filename);
 
    // Get file size for allocation
    fseek(fp, 0, SEEK_END);
@@ -54,13 +55,7 @@ void *thread_A(void *arg)
    }
 
    // Read the entire file into memory
-   if (fread(data->file_contents, 1, data->file_size, fp) != data->file_size)
-   {
-      perror("Failed to read file");
-      fclose(fp);
-      free(data->file_contents);
-      exit(EXIT_FAILURE);
-   }
+   fread(data->file_contents, 1, data->file_size, fp);
 
    while (1)
    {
@@ -133,25 +128,29 @@ void *thread_B(void *arg)
       perror("Failed to open file for hashing");
       pthread_exit(NULL);
    }
+   printf("\nThread_B: file for hashing opened\n");
    int hash_value;
-   if (Task2_SimpleDjb2Hash(fp, &hash_value) != 0)
-   {
-      perror("Failed to calculate hash");
-      fclose(fp);
-      pthread_exit(NULL);
-   }
+   int result = Task2_SimpleDjb2Hash(fp, &hash_value);
    fclose(fp);
 
-   // Write hash to file
-   FILE *hash_file = fopen("task4_pg2265.hash", "w");
-   if (!hash_file)
+   // Write hash to file only if hash calculation succeeded
+   if (result == 0)
    {
-      perror("Failed to open hash file for writing");
-      pthread_exit(NULL);
+      printf("Thread_B: hash calculated successfully with DJB2\n");
+      FILE *hash_file = fopen("task4_pg2265.hash", "w");
+      if (!hash_file)
+      {
+         perror("Failed to open hash file for writing");
+         pthread_exit(NULL);
+      }
+      fprintf(hash_file, "%d", hash_value);
+      fclose(hash_file);
+      printf("Thread_B: operation succeeded and saved to task4_pg2265.hash\n");
    }
-   fprintf(hash_file, "%d", hash_value);
-   fclose(hash_file);
-   printf("Hash calculated and saved to task4_pg2265.hash\n");
+   else
+   {
+      perror("Failed to calculate hash");
+   }
 
    pthread_exit(NULL);
 }
@@ -169,6 +168,7 @@ int main(int argc, char **argv)
       printf("Usage: %s <filename.txt>\n", argv[0]);
       exit(EXIT_FAILURE);
    }
+   printf("Filename to read: %s\n", argv[1]);
 
    // Create and initialize the shared data
    thread_data_t *thread_data = malloc(sizeof(thread_data_t));
