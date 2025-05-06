@@ -237,6 +237,7 @@ int main(int argc, char **argv)
    free(thread_data->mutex);
    free(thread_data->empty);
    free(thread_data->full);
+   free(thread_data->file_contents);
    free(thread_data);
 
    return 0;
