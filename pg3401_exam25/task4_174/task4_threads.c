@@ -26,6 +26,41 @@ typedef struct
    size_t file_size;
 } thread_data_t;
 
+/*
+   function to apply PKCS5 padding to input data.
+   Calculates the number of padding bytes needed to reach a multiple of 8 (the TEA_BLOCK_SIZE)
+   padding is applied at the end of the data, which allows it to easily be removed when decrypting.
+*/
+unsigned char *pkcs5_pad(unsigned char *data, size_t data_len, size_t *padded_len)
+{
+   // Calculate padding length
+   size_t pad_len = TEA_BLOCK_SIZE - (data_len % TEA_BLOCK_SIZE);
+   if (pad_len == 0)
+   {
+      pad_len = TEA_BLOCK_SIZE; // If already a multiple of 8, add a full block
+   }
+
+   // Allocate memory for padding
+   *padded_len = data_len + pad_len;
+   unsigned char *padded_data = malloc(*padded_len);
+   if (!padded_data)
+   {
+      perror("Failed to allocate memory for padding");
+      return NULL;
+   }
+
+   // Copy original data
+   memcpy(padded_data, data, data_len);
+
+   // Add padding bytes at the end
+   for (size_t i = 0; i < pad_len; i++)
+   {
+      padded_data[data_len + i] = (unsigned char)pad_len;
+   }
+
+   return padded_data;
+}
+
 // Now accepts thread_data_t struct pointer instead of using globals
 // All shared variables accessed through the data struct
 // Removed the condition variables and replaced with semaphores
@@ -146,6 +181,73 @@ void *thread_B(void *arg)
       fprintf(hash_file, "%d", hash_value);
       fclose(hash_file);
       printf("Thread_B: operation succeeded and saved to task4_pg2265.hash\n");
+
+      // Info to user
+      printf("\n--- output of hash file ---\n");
+      system("xxd task4_pg2265.hash");
+
+      // Encryption process
+      printf("\n--- Starting encryption process ---\n");
+      printf("Original file size: %zu bytes\n", data->file_size);
+
+      // read file from memory and check it byte size and if its a multiple of 8
+      if (data->file_size % TEA_BLOCK_SIZE == 0)
+      {
+         printf("File is already a multiple of %d\n", TEA_BLOCK_SIZE);
+      }
+      else
+      {
+         printf("File is not a multiple of %d\n", TEA_BLOCK_SIZE);
+      }
+
+      // Calculate padding and apply PKCS5
+      printf("Applying PKCS5 padding...\n");
+      size_t padded_size;
+      unsigned char *padded_data = pkcs5_pad(data->file_contents, data->file_size, &padded_size);
+      size_t padding_bytes = padded_size - data->file_size;
+      printf("Added %zu bytes of padding\n", padding_bytes);
+      printf("File size after padding: %zu bytes\n", padded_size);
+      // Create encryption key
+      unsigned char key_bytes[16];
+      FILE *keyfile = fopen("tea.key", "rb");
+      if (!keyfile)
+      {
+         perror("Failed to open tea.key\n is file missing?");
+         exit(1);
+      }
+      fread(key_bytes, 1, 16, keyfile);
+      fclose(keyfile);
+      unsigned int key[4];
+      memcpy(key, key_bytes, 16);
+      printf("encrypted with key: [ ");
+      for (int i = 0; i < 16; i++)
+      {
+         printf("%02x", key_bytes[i]);
+      }
+      printf(" ]\n");
+      // Encrypt blocks in-place
+      for (size_t i = 0; i < padded_size; i += TEA_BLOCK_SIZE)
+      {
+         encipher((unsigned int *)(padded_data + i),
+                  (unsigned int *)(padded_data + i), key);
+      }
+
+      printf("Encryption complete\n");
+
+      // Save encrypted file
+      FILE *enc_file = fopen("task4_pg2265.enc", "wb");
+      if (!enc_file)
+      {
+         printf("Failed to create encrypted file\n");
+      }
+      else
+      {
+         fwrite(padded_data, 1, padded_size, enc_file);
+         fclose(enc_file);
+         printf("Encrypted data saved to task4_pg2265.enc\n");
+      }
+
+      free(padded_data);
    }
    else
    {
@@ -184,6 +286,7 @@ int main(int argc, char **argv)
    thread_data->empty = malloc(sizeof(sem_t));
    thread_data->full = malloc(sizeof(sem_t));
 
+   // Failesafe guards for init
    // Initialize mutex semaphore (controls access to buffer)
    if (sem_init(thread_data->mutex, 0, 1) != 0) // Initial value 1
    {

@@ -18,4 +18,4 @@ task4_174: $(OBJS)
 
 .PHONY: clean
 clean:
-	rm -f $(OBJDIR)/*.o *~ core $(INCLDIR)/*~ task4_174 task4_pg2265.hash task4_pg2265.enc
+	rm -f $(OBJDIR)/*.o *~ core $(INCLDIR)/*~ task4_174
