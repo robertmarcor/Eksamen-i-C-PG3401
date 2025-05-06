@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <semaphore.h>
+#include "task4_threads.h"
 
 #define BUFFER_SIZE 4096
 #define NUM_THREADS 2
