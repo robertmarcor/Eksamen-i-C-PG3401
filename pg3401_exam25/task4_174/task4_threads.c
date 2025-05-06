@@ -9,6 +9,7 @@
 #define BUFFER_SIZE 4096
 #define NUM_THREADS 2
 #define BYTE_RANGE 256
+#define TEA_BLOCK_SIZE 8 // for 64-bit block
 
 // wrapped global variables in a struct to pass to threads
 typedef struct
@@ -19,7 +20,10 @@ typedef struct
    sem_t *empty; // instead of cond_empty
    sem_t *full;  // instead of cond_full
    int bytes_in_buffer;
+   // file data for hash,encryption and size
    char *filename;
+   unsigned char *file_contents;
+   size_t file_size;
 } thread_data_t;
 
 // Now accepts thread_data_t struct pointer instead of using globals
@@ -32,6 +36,29 @@ void *thread_A(void *arg)
    if (!fp)
    {
       perror("Failed to open file");
+      exit(EXIT_FAILURE);
+   }
+
+   // Get file size for allocation
+   fseek(fp, 0, SEEK_END);
+   data->file_size = ftell(fp);
+   rewind(fp);
+
+   // Allocate memory to hold the entire file
+   data->file_contents = malloc(data->file_size);
+   if (!data->file_contents)
+   {
+      perror("Failed to allocate memory for file contents");
+      fclose(fp);
+      exit(EXIT_FAILURE);
+   }
+
+   // Read the entire file into memory
+   if (fread(data->file_contents, 1, data->file_size, fp) != data->file_size)
+   {
+      perror("Failed to read file");
+      fclose(fp);
+      free(data->file_contents);
       exit(EXIT_FAILURE);
    }
 
@@ -95,8 +122,37 @@ void *thread_B(void *arg)
       sem_post(data->empty);
    }
 
-   for (int i = 0; i < BYTE_RANGE; i++)
-      printf("%d: %d\n", i, data->count[i]);
+   // REMOVED
+   // for (int i = 0; i < BYTE_RANGE; i++)
+   //   printf("%d: %d\n", i, data->count[i]);
+
+   // Calculate DJB2 hash of the file instead
+   FILE *fp = fopen(data->filename, "rb");
+   if (!fp)
+   {
+      perror("Failed to open file for hashing");
+      pthread_exit(NULL);
+   }
+   int hash_value;
+   if (Task2_SimpleDjb2Hash(fp, &hash_value) != 0)
+   {
+      perror("Failed to calculate hash");
+      fclose(fp);
+      pthread_exit(NULL);
+   }
+   fclose(fp);
+
+   // Write hash to file
+   FILE *hash_file = fopen("task4_pg2265.hash", "w");
+   if (!hash_file)
+   {
+      perror("Failed to open hash file for writing");
+      pthread_exit(NULL);
+   }
+   fprintf(hash_file, "%d", hash_value);
+   fclose(hash_file);
+   printf("Hash calculated and saved to task4_pg2265.hash\n");
+
    pthread_exit(NULL);
 }
 
