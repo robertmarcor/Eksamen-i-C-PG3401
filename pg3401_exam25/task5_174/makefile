@@ -1,21 +1,22 @@
 INCLDIR = ./include
 CC = gcc
 CFLAGS = -O2 -include stdio.h
+LDFLAGS = -lsocket
 CFLAGS += -I$(INCLDIR)
 OBJDIR = obj
 
-_DEPS = source.h
+_DEPS = ewpdef.h communication.h logging.h
 DEPS = $(patsubst %,$(INCLDIR)/%,$(_DEPS))
 
-_OBJS = source.o task2_sum.o task2_hash.o task2_count.o
+_OBJS = main.o communication.o
 OBJS = $(patsubst %,$(OBJDIR)/%,$(_OBJS))
 
 $(OBJDIR)/%.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-task2_174: $(OBJS)
+task5_174: $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS)
 
 .PHONY: clean
 clean:
-	rm -f $(OBJDIR)/*.o *~ core $(INCLDIR)/*~
+	rm -f $(OBJDIR)/*.o *~ core $(INCLDIR)/*~ task5_174
