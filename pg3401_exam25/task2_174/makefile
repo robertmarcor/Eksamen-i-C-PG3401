@@ -18,4 +18,4 @@ task2_174: $(OBJS)
 
 .PHONY: clean
 clean:
-	rm -f $(OBJDIR)/*.o *~ core $(INCLDIR)/*~ task2_174 pgexam25_output.bin 
+	rm -f $(OBJDIR)/*.o *~ core $(INCLDIR)/*~

@@ -1,13 +1,14 @@
 INCLDIR = ./include
 CC = gcc
-CFLAGS = -O2 -include stdio.h –lsocket 
+CFLAGS = -O2 -include stdio.h
+LDFLAGS = -lsocket
 CFLAGS += -I$(INCLDIR)
 OBJDIR = obj
 
-_DEPS = main.h
+_DEPS = ewpdef.h communication.h
 DEPS = $(patsubst %,$(INCLDIR)/%,$(_DEPS))
 
-_OBJS = main.o
+_OBJS = main.o communication.o
 OBJS = $(patsubst %,$(OBJDIR)/%,$(_OBJS))
 
 $(OBJDIR)/%.o: %.c $(DEPS)
