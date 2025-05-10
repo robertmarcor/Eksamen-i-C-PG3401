@@ -5,7 +5,7 @@ LDFLAGS = -lsocket
 CFLAGS += -I$(INCLDIR)
 OBJDIR = obj
 
-_DEPS = ewpdef.h communication.h
+_DEPS = ewpdef.h communication.h logging.h
 DEPS = $(patsubst %,$(INCLDIR)/%,$(_DEPS))
 
 _OBJS = main.o communication.o
