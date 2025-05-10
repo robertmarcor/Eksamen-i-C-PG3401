@@ -8,7 +8,7 @@ OBJDIR = obj
 _DEPS = main.h
 DEPS = $(patsubst %,$(INCLDIR)/%,$(_DEPS))
 
-_OBJS = main.o
+_OBJS = main.o TEA-2.o
 OBJS = $(patsubst %,$(OBJDIR)/%,$(_OBJS))
 
 $(OBJDIR)/%.o: %.c $(DEPS)
